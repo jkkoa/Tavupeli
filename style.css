@@ -1,0 +1,992 @@
+/* Tavupeli — Clean Whimsical Storybook Stylesheet
+ * Optimized for 65" 4K Clevertouch (16:9) and iPad Landscape (4:3).
+ * Zero external CDNs, zero busy textures, zero idle animations.
+ */
+
+/* Optional self-hosted early-reader Finnish font:
+ * Drop a .woff2 file (e.g. Andika or Nunito) into fonts/reader.woff2
+ * and uncomment the @font-face block below.
+ */
+/*
+@font-face {
+  font-family: 'TavupeliReader';
+  src: url('./fonts/reader.woff2') format('woff2');
+  font-weight: 400 800;
+  font-style: normal;
+  font-display: swap;
+}
+*/
+
+:root {
+  --bg-board: #FAF8F3;
+  --bg-panel: #F2EFE7;
+  --surface: #FFFFFF;
+  --ink: #262A2F;
+  --ink-soft: #5E646C;
+  --border: #D8D3C8;
+  --border-strong: #C2BCB0;
+  --bear-bg: #2B2E33;
+  --bear-border: #17191D;
+  --accent: #2E6FB8;
+  --danger: #C94842;
+  --radius-card: 20px;
+  --radius-btn: 14px;
+  --font-main: 'TavupeliReader', 'Nunito', 'Avenir Next', 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100dvh;
+  overflow: hidden;
+  background: var(--bg-board);
+  color: var(--ink);
+  font-family: var(--font-main);
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.screen {
+  width: 100%;
+  height: 100dvh;
+}
+
+/* =========================================================
+ * SETUP SCREEN (Zero explanatory sentences or subtitles)
+ * ========================================================= */
+#setup-screen {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(14px, 2.2vh, 28px) clamp(16px, 2.8vw, 40px);
+  background: var(--bg-board);
+}
+
+.setup-shell {
+  width: 100%;
+  max-width: 1120px;
+  max-height: 100%;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 24px;
+  padding: clamp(18px, 2.5vh, 30px) clamp(20px, 2.8vw, 36px);
+  display: flex;
+  flex-direction: column;
+  gap: clamp(14px, 2vh, 24px);
+  overflow-y: auto;
+}
+
+.setup-header h1 {
+  margin: 0;
+  font-size: clamp(1.5rem, 2.8vw, 2.1rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+
+.setup-grid {
+  display: grid;
+  grid-template-columns: minmax(320px, 1.05fr) minmax(300px, 0.95fr);
+  gap: clamp(18px, 3vw, 38px);
+  align-items: start;
+}
+
+.setup-col {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(12px, 1.8vh, 20px);
+}
+
+.setup-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.setup-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.setup-label {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--ink-soft);
+  letter-spacing: 0.01em;
+}
+
+.setup-inline-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px 18px;
+}
+
+.seg-row {
+  display: inline-flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.seg-btn {
+  min-height: 44px;
+  min-width: 44px;
+  padding: 0 14px;
+  border-radius: 12px;
+  border: 1.5px solid var(--border);
+  background: var(--bg-board);
+  color: var(--ink);
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.seg-btn.active {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: #FFFFFF;
+}
+
+.seg-players .seg-btn {
+  width: 48px;
+  padding: 0;
+}
+
+.chip-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.station-chip {
+  min-height: 44px;
+  padding: 6px 13px;
+  border-radius: 12px;
+  border: 1.5px solid var(--border);
+  background: var(--bg-board);
+  color: var(--ink-soft);
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.station-chip .chip-icon {
+  width: 24px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.station-chip .chip-icon img,
+.station-chip .chip-icon svg {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.station-chip.active {
+  background: #FFFFFF;
+  border-color: var(--ink);
+  color: var(--ink);
+}
+
+.letter-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.letter-btn {
+  aspect-ratio: 1 / 1;
+  min-height: 44px;
+  border-radius: 11px;
+  border: 1.5px solid var(--border);
+  background: var(--bg-board);
+  color: var(--ink);
+  font-family: inherit;
+  font-size: clamp(1rem, 1.5vw, 1.2rem);
+  font-weight: 700;
+  line-height: 1.3;
+  padding-top: 2px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.letter-btn.active {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: #FFFFFF;
+}
+
+.btn-ghost-sm {
+  min-height: 36px;
+  padding: 0 12px;
+  border-radius: 10px;
+  border: 1.5px solid var(--border);
+  background: transparent;
+  color: var(--ink-soft);
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.btn-ghost-sm:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.setup-footer {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+  padding-top: 4px;
+}
+
+.btn-primary,
+.btn-secondary,
+.btn-danger,
+.btn-danger-outline {
+  min-height: 54px;
+  padding: 0 28px;
+  border-radius: var(--radius-btn);
+  font-family: inherit;
+  font-size: 1.12rem;
+  font-weight: 800;
+  cursor: pointer;
+  border: 2px solid transparent;
+}
+
+.btn-primary {
+  background: var(--ink);
+  color: #FFFFFF;
+}
+
+.btn-primary:disabled {
+  background: #C9C4BA;
+  color: #F8F6F2;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  background: var(--bg-board);
+  border-color: var(--border-strong);
+  color: var(--ink);
+}
+
+.btn-danger {
+  background: var(--danger);
+  color: #FFFFFF;
+}
+
+.btn-danger-outline {
+  background: #FFFFFF;
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+/* =========================================================
+ * GAME SCREEN LAYOUT (Supports Left / Right Side Panel Flip)
+ * ========================================================= */
+#game-screen {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  height: 100dvh;
+  background: var(--bg-board);
+}
+
+#game-screen.layout-left {
+  flex-direction: row-reverse;
+}
+
+.board-pane {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(10px, 1.8vh, 22px) clamp(12px, 1.8vw, 24px);
+  background: var(--bg-board);
+}
+
+.board-wrap {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.board-svg {
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
+  display: block;
+}
+
+/* Token calm flat glide (ZERO bouncing, ZERO scaling) */
+.token-group {
+  transition: transform 500ms ease-in-out;
+}
+
+.token-group.bear-token {
+  transition: transform 620ms ease-in-out;
+}
+
+.token-group.no-transition {
+  transition: none !important;
+}
+
+.token-group.paused-token {
+  opacity: 0.38;
+}
+
+/* =========================================================
+ * SIDE PANEL (Bottom-anchored kid-height controls)
+ * ========================================================= */
+.side-panel {
+  flex: 0 0 clamp(300px, 31vw, 430px);
+  height: 100%;
+  background: var(--bg-panel);
+  border-left: 1.5px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  padding: clamp(12px, 1.8vh, 20px) clamp(14px, 1.8vw, 22px);
+  gap: clamp(10px, 1.6vh, 18px);
+}
+
+#game-screen.layout-left .side-panel {
+  border-left: none;
+  border-right: 1.5px solid var(--border);
+}
+
+/* Quiet top row: player dots + Mute & Exit only */
+.panel-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 44px;
+}
+
+.player-dots {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: nowrap;
+}
+
+.player-dot-btn {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border-radius: 50%;
+  border: 2.5px solid #FFFFFF;
+  background: var(--dot-color);
+  cursor: pointer;
+  position: relative;
+  flex-shrink: 0;
+  box-shadow: 0 0 0 1px rgba(38, 42, 47, 0.14);
+}
+
+.player-dot-btn.active {
+  box-shadow: 0 0 0 3px var(--bg-panel), 0 0 0 5.5px var(--dot-color);
+}
+
+.player-dot-btn.paused {
+  opacity: 0.28;
+}
+
+.player-dot-btn.finished::after {
+  content: '';
+  position: absolute;
+  inset: 6px;
+  border-radius: 50%;
+  border: 2px solid #FFFFFF;
+}
+
+.panel-tools {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.icon-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 11px;
+  border: 1.5px solid var(--border);
+  background: var(--surface);
+  color: var(--ink-soft);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+}
+
+.icon-btn svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* =========================================================
+ * CARD STAGE & CARDS
+ * ========================================================= */
+.card-stage {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+@keyframes cardEnter {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.card-enter {
+  animation: cardEnter 250ms ease-out both;
+}
+
+/* Face-down Player Draw Deck (white cards, thick active-player border, 2 peeking beneath at -2deg and +1.5deg) */
+.deck-stack {
+  position: relative;
+  width: min(100%, 300px);
+  aspect-ratio: 3 / 4;
+  max-height: 100%;
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  padding: 0;
+}
+
+.deck-peek {
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-card);
+  background: #FFFFFF;
+  border: 6px solid var(--player-color, #2E6FB8);
+  pointer-events: none;
+}
+
+.deck-peek-1 {
+  transform: rotate(-2deg) translate(-3px, 4px);
+  opacity: 0.72;
+}
+
+.deck-peek-2 {
+  transform: rotate(1.5deg) translate(3px, 2px);
+  opacity: 0.86;
+}
+
+.deck-top {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: var(--radius-card);
+  background: #FFFFFF;
+  border: 7px solid var(--player-color, #2E6FB8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.deck-mark {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 4px solid var(--player-color, #2E6FB8);
+  opacity: 0.22;
+}
+
+/* Face-up Player Card (Word, Activity, Twist) */
+.game-card {
+  width: min(100%, 320px);
+  max-height: 100%;
+  aspect-ratio: 3 / 4;
+  border-radius: var(--radius-card);
+  background: #FFFFFF;
+  border: 7px solid var(--player-color, #2E6FB8);
+  padding: clamp(14px, 2vh, 22px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.word-art {
+  flex: 1 1 auto;
+  width: 100%;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+}
+
+.word-art img,
+.word-art svg {
+  width: 100%;
+  height: 100%;
+  max-height: 240px;
+  object-fit: contain;
+}
+
+/* Intact Finnish word with tavuviiva (NO boxes, NO pills, NO arcs) */
+.word-text-slot {
+  width: 100%;
+  min-height: 54px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 6px 2px 2px;
+}
+
+.word-text {
+  font-size: clamp(1.35rem, 2.3vw, 1.95rem);
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  line-height: 1.35;
+  color: var(--ink);
+  white-space: nowrap;
+}
+
+.word-text.long-word {
+  font-size: clamp(1.08rem, 1.8vw, 1.55rem);
+  letter-spacing: 0.015em;
+}
+
+.syl-span {
+  transition: color 180ms ease;
+}
+
+.syl-span.lit {
+  color: var(--player-color);
+}
+
+.syl-hyphen {
+  color: #9A958B;
+  font-weight: 600;
+}
+
+/* Activity Card */
+.activity-card {
+  justify-content: center;
+  gap: clamp(10px, 1.8vh, 18px);
+}
+
+.station-card-art {
+  width: clamp(92px, 14vh, 138px);
+  height: clamp(92px, 14vh, 138px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.station-card-art img,
+.station-card-art svg {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.card-title {
+  margin: 0;
+  font-size: clamp(1.3rem, 2.1vw, 1.7rem);
+  font-weight: 800;
+  color: var(--ink);
+  text-align: center;
+  line-height: 1.25;
+}
+
+/* Thin-bordered letter boxes with generous line-height so Ä and Ö never clip */
+.letter-boxes {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 6px 0;
+}
+
+.letter-box {
+  width: clamp(66px, 8.5vh, 84px);
+  height: clamp(72px, 9.2vh, 92px);
+  border: 2px solid var(--border-strong);
+  border-radius: 14px;
+  background: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: clamp(2.1rem, 3.6vw, 2.8rem);
+  font-weight: 800;
+  line-height: 1.4;
+  padding-top: 4px;
+  color: var(--ink);
+}
+
+/* 3 staggered boxes for Laava */
+.letter-boxes.staggered {
+  gap: 10px;
+  padding: 12px 0;
+}
+
+.letter-boxes.staggered .letter-box {
+  width: clamp(58px, 7.2vh, 74px);
+  height: clamp(64px, 8vh, 80px);
+  font-size: clamp(1.85rem, 3vw, 2.4rem);
+}
+
+.letter-boxes.staggered .letter-box:nth-child(1) {
+  transform: translateY(8px);
+}
+
+.letter-boxes.staggered .letter-box:nth-child(2) {
+  transform: translateY(-8px);
+}
+
+.letter-boxes.staggered .letter-box:nth-child(3) {
+  transform: translateY(8px);
+}
+
+/* Twist Card */
+.twist-card {
+  justify-content: center;
+  gap: clamp(12px, 2vh, 20px);
+}
+
+.twist-delta {
+  font-size: clamp(2.6rem, 4.5vw, 3.6rem);
+  font-weight: 800;
+  line-height: 1.1;
+  color: var(--ink);
+}
+
+/* Bear Cards (Deep dark charcoal + even darker border, subtle peeking ears, ONLY numeral / 0+art) */
+.bear-card-wrap {
+  position: relative;
+  width: min(100%, 300px);
+  max-height: 100%;
+  aspect-ratio: 3 / 4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bear-card-btn {
+  width: 100%;
+  height: 100%;
+  border-radius: var(--radius-card);
+  background: var(--bear-bg);
+  border: 7px solid var(--bear-border);
+  cursor: pointer;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+}
+
+.bear-card-face {
+  width: 100%;
+  height: 100%;
+  border-radius: var(--radius-card);
+  background: var(--bear-bg);
+  border: 7px solid var(--bear-border);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  gap: 10px;
+}
+
+/* Subtle storybook bear ears peeking from top edge */
+.bear-ears {
+  position: absolute;
+  top: -18px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 112px;
+  height: 26px;
+  pointer-events: none;
+}
+
+.bear-numeral {
+  font-size: clamp(4.8rem, 9vw, 6.8rem);
+  font-weight: 800;
+  line-height: 1;
+  color: #F4F1EA;
+}
+
+.bear-zero-numeral {
+  font-size: clamp(3rem, 5.5vw, 4.2rem);
+  font-weight: 800;
+  line-height: 1;
+  color: #F4F1EA;
+}
+
+.bear-zero-art {
+  width: clamp(130px, 21vh, 190px);
+  height: clamp(130px, 21vh, 190px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bear-zero-art img,
+.bear-zero-art svg {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* =========================================================
+ * BOTTOM KID-HEIGHT CONTROLS DOCK
+ * ========================================================= */
+.control-dock {
+  flex: 0 0 auto;
+  min-height: 158px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.beat-dots-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  min-height: 36px;
+}
+
+.beat-dot {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2.5px solid var(--border-strong);
+  background: var(--surface);
+  padding: 0;
+  cursor: default;
+}
+
+.beat-dot.lit {
+  background: var(--player-color, #2E6FB8);
+  border-color: var(--player-color, #2E6FB8);
+  cursor: pointer;
+}
+
+.tap-pad {
+  width: 100%;
+  height: clamp(66px, 9.5vh, 84px);
+  border-radius: 18px;
+  border: 2.5px solid var(--border-strong);
+  background: #FFFFFF;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tap-pad:active {
+  background: #EBE7DE;
+}
+
+.tap-pad-ring {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 3.5px solid var(--player-color, #2E6FB8);
+  opacity: 0.45;
+}
+
+.numerot-row {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.num-btn {
+  height: clamp(60px, 8.5vh, 76px);
+  border-radius: 15px;
+  border: 2px solid var(--border-strong);
+  background: #FFFFFF;
+  color: var(--ink);
+  font-family: inherit;
+  font-size: clamp(1.5rem, 2.5vw, 1.9rem);
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.num-btn.active {
+  background: var(--player-color, #2E6FB8);
+  border-color: var(--player-color, #2E6FB8);
+  color: #FFFFFF;
+}
+
+.btn-valmis {
+  width: 100%;
+  height: clamp(54px, 7.6vh, 66px);
+  border-radius: 16px;
+  border: none;
+  background: var(--ink);
+  color: #FFFFFF;
+  font-family: inherit;
+  font-size: clamp(1.15rem, 1.9vw, 1.35rem);
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.btn-valmis:disabled {
+  background: #CCC7BD;
+  color: #F6F4EF;
+  cursor: not-allowed;
+}
+
+/* =========================================================
+ * MODALS & END SCREEN
+ * ========================================================= */
+.modal-backdrop,
+.end-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(34, 38, 43, 0.48);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 50;
+}
+
+.modal-card {
+  width: min(100%, 380px);
+  background: #FFFFFF;
+  border-radius: 22px;
+  border: 1.5px solid var(--border);
+  padding: 28px 24px;
+  text-align: center;
+}
+
+.modal-title {
+  margin: 0 0 22px;
+  font-size: 1.35rem;
+  font-weight: 800;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.modal-actions button {
+  flex: 1 1 0;
+  padding: 0 14px;
+}
+
+.end-card {
+  width: min(100%, 440px);
+  background: #FFFFFF;
+  border-radius: 26px;
+  border: 1.5px solid var(--border);
+  padding: 32px 28px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  text-align: center;
+}
+
+.end-art {
+  width: clamp(180px, 28vh, 240px);
+  height: clamp(180px, 28vh, 240px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.end-art img,
+.end-art svg {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.end-line {
+  margin: 0;
+  font-size: clamp(1.35rem, 2.5vw, 1.75rem);
+  font-weight: 800;
+  color: var(--ink);
+}
+
+.end-card .btn-primary {
+  width: 100%;
+}
+
+/* =========================================================
+ * RESPONSIVE TUNING FOR IPAD LANDSCAPE (4:3) & COMPACT HEIGHTS
+ * ========================================================= */
+@media (max-width: 1080px) {
+  .side-panel {
+    flex: 0 0 clamp(275px, 34vw, 350px);
+  }
+  .setup-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  .letter-grid {
+    grid-template-columns: repeat(10, minmax(0, 1fr));
+  }
+}
+
+@media (max-height: 700px) {
+  .control-dock {
+    min-height: 132px;
+    gap: 8px;
+  }
+  .game-card,
+  .deck-stack,
+  .bear-card-wrap {
+    max-width: 240px;
+  }
+}

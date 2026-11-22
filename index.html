@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#FAF8F3" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="Tavupeli" />
+  <title>Tavupeli</title>
+  <link rel="manifest" href="./manifest.json" />
+  <link rel="icon" type="image/svg+xml" href="./icons/icon-192.svg" />
+  <link rel="apple-touch-icon" href="./icons/icon-192.svg" />
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <!-- SETUP SCREEN -->
+  <main id="setup-screen" class="screen">
+    <div class="setup-shell">
+      <header class="setup-header">
+        <h1>Tavupeli</h1>
+      </header>
+
+      <div class="setup-grid">
+        <section class="setup-col">
+          <div class="setup-group">
+            <span class="setup-label">Pelaajat</span>
+            <div id="setup-players" class="seg-row seg-players" role="group" aria-label="Pelaajat"></div>
+          </div>
+
+          <div class="setup-group">
+            <span class="setup-label">Asemat</span>
+            <div id="setup-stations" class="chip-grid" role="group" aria-label="Asemat"></div>
+          </div>
+
+          <div class="setup-inline-row">
+            <div class="setup-group">
+              <span class="setup-label">Yllätykset</span>
+              <div id="setup-twists" class="seg-row" role="group" aria-label="Yllätykset"></div>
+            </div>
+            <div class="setup-group">
+              <span class="setup-label">Ruudut</span>
+              <div id="setup-squares" class="seg-row" role="group" aria-label="Ruudut"></div>
+            </div>
+          </div>
+
+          <div class="setup-inline-row">
+            <div class="setup-group">
+              <span class="setup-label">Laskutapa</span>
+              <div id="setup-mode" class="seg-row" role="group" aria-label="Laskutapa"></div>
+            </div>
+            <div class="setup-group">
+              <span class="setup-label">Paneeli</span>
+              <div id="setup-side" class="seg-row" role="group" aria-label="Paneeli"></div>
+            </div>
+            <div class="setup-group">
+              <span class="setup-label">Äänet</span>
+              <div id="setup-audio" class="seg-row" role="group" aria-label="Äänet"></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="setup-col setup-letters-col">
+          <div class="setup-group setup-letters-group">
+            <div class="setup-label-row">
+              <span class="setup-label">Kirjaimet</span>
+              <button id="btn-clear-letters" type="button" class="btn-ghost-sm">Tyhjennä</button>
+            </div>
+            <div id="setup-letters" class="letter-grid" role="group" aria-label="Kirjaimet"></div>
+          </div>
+        </section>
+      </div>
+
+      <footer class="setup-footer">
+        <button id="btn-resume-game" type="button" class="btn-secondary hidden">Jatka peliä</button>
+        <button id="btn-start-game" type="button" class="btn-primary" disabled>Aloita peli</button>
+      </footer>
+    </div>
+  </main>
+
+  <!-- GAME SCREEN -->
+  <main id="game-screen" class="screen hidden layout-right">
+    <section class="board-pane" aria-label="Pelilauta">
+      <div id="board-wrap" class="board-wrap">
+        <svg id="board-svg" class="board-svg" preserveAspectRatio="xMidYMid meet"></svg>
+      </div>
+    </section>
+
+    <aside class="side-panel" aria-label="Ohjauspaneeli">
+      <!-- Top quiet row: player dots + strictly Mute & Exit icons -->
+      <header class="panel-top">
+        <div id="player-dots" class="player-dots" role="group" aria-label="Pelaajat"></div>
+        <div class="panel-tools">
+          <button id="btn-mute" type="button" class="icon-btn" aria-label="Äänet"></button>
+          <button id="btn-exit" type="button" class="icon-btn" aria-label="Sulje peli"></button>
+        </div>
+      </header>
+
+      <!-- Center Card Stage -->
+      <div id="card-stage" class="card-stage"></div>
+
+      <!-- Bottom Kid-Height Controls -->
+      <div id="control-dock" class="control-dock"></div>
+    </aside>
+  </main>
+
+  <!-- 2-STEP PROTECTED EXIT / NEW GAME MODAL -->
+  <div id="exit-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true">
+    <div class="modal-card">
+      <div id="exit-step-1" class="modal-body">
+        <h2 class="modal-title">Sulje peli?</h2>
+        <div class="modal-actions">
+          <button id="btn-modal-cancel" type="button" class="btn-secondary">Jatka</button>
+          <button id="btn-modal-step2" type="button" class="btn-danger-outline">Uusi peli</button>
+        </div>
+      </div>
+      <div id="exit-step-2" class="modal-body hidden">
+        <h2 class="modal-title">Aloitetaanko alusta?</h2>
+        <div class="modal-actions">
+          <button id="btn-modal-back" type="button" class="btn-secondary">Peruuta</button>
+          <button id="btn-modal-confirm" type="button" class="btn-danger">Uusi peli</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- END SCREEN -->
+  <div id="end-screen" class="end-backdrop hidden" role="dialog" aria-modal="true">
+    <div class="end-card">
+      <div id="end-art" class="end-art"></div>
+      <p id="end-line" class="end-line"></p>
+      <button id="btn-end-new" type="button" class="btn-primary">Uusi peli</button>
+    </div>
+  </div>
+
+  <script src="./words.js"></script>
+  <script src="./art.js"></script>
+  <script src="./audio.js"></script>
+  <script src="./board.js"></script>
+  <script src="./app.js"></script>
+</body>
+</html>
