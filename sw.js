@@ -1,5 +1,5 @@
-/* Tavupeli v3 — Offline PWA Service Worker */
-const CACHE_NAME = 'tavupeli-cache-v3';
+/* Tavupeli — Offline PWA Service Worker */
+const CACHE_NAME = 'tavupeli-cache-v4';
 const CORE_ASSETS = [
   './',
   './index.html',
