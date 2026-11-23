@@ -1,27 +1,14 @@
-# Tavupeli
+# Tavupeli v3
 
-Offline-capable cooperative Finnish syllable-counting board game built for interactive displays and tablets.
+Cooperative Finnish syllable-counting adventure board game built for Clevertouch displays, iPads, and laptops.
 
-## Publish on GitHub Pages
-1. Upload all files in this folder to a GitHub repository (for example `tavupeli`).
-2. Open **Settings -> Pages**, choose **Deploy from a branch**, select `main` / `/ (root)`, and click **Save**.
-3. Open the published link on your display or tablet and choose **Add to Home Screen** for fullscreen offline play.
+## Highlights (v3)
+- Robust orthogonal board scaling cleanly for any square count from 20 to 45
+- Slimmer side panel and compact landmarks so squares stay large
+- Taputus-only syllable counting with numeral + tavuviiva reveal on card, then clean board glide
+- High station density (~82%), border-overlapping tilted icons, and in-tile Laava
+- Lurking Bear starting behind Square 1, lighter warm-stone Bear cards with 1–3 paw prints
+- Full offline PWA caching (`tavupeli-cache-v3`)
 
-## Swapping Illustrations (Zero Code Changes)
-Drop `.webp` or `.png` files into `img/words/` or `img/board/` using the exact lowercase filenames below. The game automatically swaps out the built-in SVG fallbacks as soon as matching files exist. Use `gallery.html` to inspect all artwork side-by-side.
-
-### Word Cards (`img/words/`, recommended `1024x1024`, pure `#FFFFFF` background)
-- 1 tavu: `kuu.webp`, `luu.webp`, `puu.webp`
-- 2 tavua: `kissa.webp`, `koira.webp`, `pilvi.webp`, `sukka.webp`, `vene.webp`
-- 3 tavua: `banaani.webp`, `kirahvi.webp`, `kitara.webp`, `omena.webp`, `perhonen.webp`
-- 4 tavua: `krokotiili.webp`, `lumiukko.webp`, `paloauto.webp`, `sateenvarjo.webp`
-- 5 tavua: `helikopteri.webp`, `jaateloauto.webp`, `liikennevalot.webp`
-
-### Board, Stations, Twists & Cards (`img/board/`, recommended `512x512`–`1024x1024`, transparent background)
-- Vignettes: `banaanilaiva.webp`, `lohikaarme.webp`, `aarrearkku.webp`, `linna-idle.webp`, `linna-win.webp`
-- Stations: `banaanivuori.webp`, `laava.webp`, `katapultti.webp`, `merirosvo.webp`, `taikapata.webp`
-- Twists: `banaaninkuori.webp`, `taikaportti.webp`
-- Bear cards / End screen: `karhu-0.webp`, `karhu-win.webp`
-
-## Optional Local Font
-Drop a `.woff2` reader font (for example Andika or Nunito) into `fonts/reader.woff2` and uncomment the `@font-face` rule at the top of `style.css`.
+## Updating on GitHub Pages
+Upload the updated files (`index.html`, `style.css`, `app.js`, `board.js`, `art.js`, `sw.js`, `manifest.json`) via **Add file -> Upload files** to overwrite earlier versions, commit, and reload once on your device.

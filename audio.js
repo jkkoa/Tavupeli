@@ -1,12 +1,10 @@
 /* Tavupeli — Offline Web Audio Engine
  * Soft rising pentatonic marimba for syllables + low muted bass tone for the Bear.
- * Zero external audio files, zero TTS, zero cartoon sound effects.
  */
 window.TavupeliAudio = (() => {
   let ctx = null;
   let muted = false;
 
-  // C5 major pentatonic scale: C5, D5, E5, G5, A5, C6
   const MARIMBA_NOTES = [523.25, 587.33, 659.25, 783.99, 880.00, 1046.50];
 
   function ensureContext() {
@@ -22,15 +20,9 @@ window.TavupeliAudio = (() => {
     return ctx;
   }
 
-  function setMuted(flag) {
-    muted = Boolean(flag);
-  }
+  function setMuted(flag) { muted = Boolean(flag); }
+  function isMuted() { return muted; }
 
-  function isMuted() {
-    return muted;
-  }
-
-  // Soft wooden pentatonic marimba note (stepIndex 0..5)
   function playSyllable(stepIndex = 0) {
     const ac = ensureContext();
     if (!ac) return;
@@ -38,12 +30,10 @@ window.TavupeliAudio = (() => {
     const freq = MARIMBA_NOTES[Math.max(0, Math.min(stepIndex, MARIMBA_NOTES.length - 1))];
     const now = ac.currentTime;
 
-    // Fundamental warm sine
     const osc1 = ac.createOscillator();
     osc1.type = 'sine';
     osc1.frequency.setValueAtTime(freq, now);
 
-    // Subtle wooden 4th harmonic overtone (classic marimba bloom)
     const osc2 = ac.createOscillator();
     osc2.type = 'sine';
     osc2.frequency.setValueAtTime(freq * 4, now);
@@ -69,12 +59,10 @@ window.TavupeliAudio = (() => {
     osc2.stop(now + 0.1);
   }
 
-  // Deeper low muted bass tone for the Bear's steps
   function playBearStep(stepIndex = 0) {
     const ac = ensureContext();
     if (!ac) return;
 
-    // Warm deep bass notes (A2 -> G2 -> F2 subtle descent, very soft & muted)
     const freqs = [110.0, 98.0, 87.31];
     const freq = freqs[stepIndex % freqs.length];
     const now = ac.currentTime;

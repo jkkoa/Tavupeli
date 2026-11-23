@@ -1,7 +1,5 @@
-/* Tavupeli — Offline PWA Service Worker
- * Precaches core app files and dynamically caches any images/fonts added later.
- */
-const CACHE_NAME = 'tavupeli-cache-v1';
+/* Tavupeli v3 — Offline PWA Service Worker */
+const CACHE_NAME = 'tavupeli-cache-v3';
 const CORE_ASSETS = [
   './',
   './index.html',
@@ -43,21 +41,17 @@ self.addEventListener('fetch', event => {
   const isMedia = /\/(img|fonts)\//.test(url.pathname);
 
   if (isMedia) {
-    // Stale-while-revalidate for images & fonts (never caches 404s)
     event.respondWith(
       caches.open(CACHE_NAME).then(async cache => {
         const cached = await cache.match(req);
         const networkPromise = fetch(req).then(res => {
-          if (res && res.ok) {
-            cache.put(req, res.clone());
-          }
+          if (res && res.ok) cache.put(req, res.clone());
           return res;
         }).catch(() => cached);
         return cached || networkPromise;
       })
     );
   } else {
-    // Network-first with offline cache fallback for HTML/CSS/JS
     event.respondWith(
       fetch(req)
         .then(res => {
