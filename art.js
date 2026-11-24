@@ -30,7 +30,7 @@ window.TavupeliArt = (() => {
   "aarrearkku": "<path d=\"M40 86 C44 54 156 54 160 86 Z\" fill=\"#9E6A44\" stroke=\"#2E3338\" stroke-width=\"6\" stroke-linejoin=\"round\"/><rect x=\"44\" y=\"86\" width=\"112\" height=\"16\" fill=\"#F0C946\" stroke=\"#2E3338\" stroke-width=\"5\"/><rect x=\"38\" y=\"98\" width=\"124\" height=\"62\" rx=\"8\" fill=\"#8C5937\" stroke=\"#2E3338\" stroke-width=\"6\"/><line x1=\"68\" y1=\"98\" x2=\"68\" y2=\"160\" stroke=\"#D9A738\" stroke-width=\"8\"/><line x1=\"132\" y1=\"98\" x2=\"132\" y2=\"160\" stroke=\"#D9A738\" stroke-width=\"8\"/><rect x=\"90\" y=\"94\" width=\"20\" height=\"22\" rx=\"4\" fill=\"#F0C946\" stroke=\"#2E3338\" stroke-width=\"5\"/><circle cx=\"100\" cy=\"105\" r=\"3\" fill=\"#2E3338\"/>",
   "linna-idle": "<rect x=\"30\" y=\"88\" width=\"34\" height=\"90\" fill=\"#C9C3B8\" stroke=\"#2E3338\" stroke-width=\"5.5\"/><polygon points=\"24,88 47,48 70,88\" fill=\"#5D748A\" stroke=\"#2E3338\" stroke-width=\"5.5\" stroke-linejoin=\"round\"/><rect x=\"136\" y=\"88\" width=\"34\" height=\"90\" fill=\"#C9C3B8\" stroke=\"#2E3338\" stroke-width=\"5.5\"/><polygon points=\"130,88 153,48 176,88\" fill=\"#5D748A\" stroke=\"#2E3338\" stroke-width=\"5.5\" stroke-linejoin=\"round\"/><rect x=\"76\" y=\"58\" width=\"48\" height=\"120\" fill=\"#DDD7CC\" stroke=\"#2E3338\" stroke-width=\"5.5\"/><polygon points=\"70,58 100,16 130,58\" fill=\"#5D748A\" stroke=\"#2E3338\" stroke-width=\"5.5\" stroke-linejoin=\"round\"/><rect x=\"52\" y=\"106\" width=\"96\" height=\"72\" fill=\"#D6D0C5\" stroke=\"#2E3338\" stroke-width=\"5.5\"/><path d=\"M52 106 L64 106 L64 96 L78 96 L78 106 L92 106 L92 96 L108 96 L108 106 L122 106 L122 96 L136 96 L136 106 L148 106\" fill=\"#D6D0C5\" stroke=\"#2E3338\" stroke-width=\"5\" stroke-linejoin=\"round\"/><path d=\"M84 178 L84 142 C84 128 116 128 116 142 L116 178 Z\" fill=\"#7D5438\" stroke=\"#2E3338\" stroke-width=\"5.5\"/><rect x=\"92\" y=\"72\" width=\"16\" height=\"20\" rx=\"8\" fill=\"#46525E\" stroke=\"#2E3338\" stroke-width=\"4\"/><rect x=\"41\" y=\"108\" width=\"12\" height=\"18\" rx=\"6\" fill=\"#46525E\" stroke=\"#2E3338\" stroke-width=\"4\"/><rect x=\"147\" y=\"108\" width=\"12\" height=\"18\" rx=\"6\" fill=\"#46525E\" stroke=\"#2E3338\" stroke-width=\"4\"/>",
   "linna-win": "<line x1=\"100\" y1=\"20\" x2=\"100\" y2=\"2\" stroke=\"#2E3338\" stroke-width=\"4.5\" stroke-linecap=\"round\"/><path d=\"M100 4 L138 11 L100 20 Z\" fill=\"#F0C946\" stroke=\"#2E3338\" stroke-width=\"4\" stroke-linejoin=\"round\"/><rect x=\"30\" y=\"88\" width=\"34\" height=\"90\" fill=\"#C9C3B8\" stroke=\"#2E3338\" stroke-width=\"5.5\"/><polygon points=\"24,88 47,48 70,88\" fill=\"#5D748A\" stroke=\"#2E3338\" stroke-width=\"5.5\" stroke-linejoin=\"round\"/><rect x=\"136\" y=\"88\" width=\"34\" height=\"90\" fill=\"#C9C3B8\" stroke=\"#2E3338\" stroke-width=\"5.5\"/><polygon points=\"130,88 153,48 176,88\" fill=\"#5D748A\" stroke=\"#2E3338\" stroke-width=\"5.5\" stroke-linejoin=\"round\"/><rect x=\"76\" y=\"58\" width=\"48\" height=\"120\" fill=\"#DDD7CC\" stroke=\"#2E3338\" stroke-width=\"5.5\"/><polygon points=\"70,58 100,16 130,58\" fill=\"#5D748A\" stroke=\"#2E3338\" stroke-width=\"5.5\" stroke-linejoin=\"round\"/><rect x=\"52\" y=\"106\" width=\"96\" height=\"72\" fill=\"#D6D0C5\" stroke=\"#2E3338\" stroke-width=\"5.5\"/><path d=\"M52 106 L64 106 L64 96 L78 96 L78 106 L92 106 L92 96 L108 96 L108 106 L122 106 L122 96 L136 96 L136 106 L148 106\" fill=\"#D6D0C5\" stroke=\"#2E3338\" stroke-width=\"5\" stroke-linejoin=\"round\"/><path d=\"M84 178 L84 142 C84 128 116 128 116 142 L116 178 Z\" fill=\"#F2BE4B\" stroke=\"#2E3338\" stroke-width=\"5.5\"/><rect x=\"92\" y=\"72\" width=\"16\" height=\"20\" rx=\"8\" fill=\"#F5C44E\" stroke=\"#2E3338\" stroke-width=\"4\"/><rect x=\"41\" y=\"108\" width=\"12\" height=\"18\" rx=\"6\" fill=\"#F5C44E\" stroke=\"#2E3338\" stroke-width=\"4\"/><rect x=\"147\" y=\"108\" width=\"12\" height=\"18\" rx=\"6\" fill=\"#F5C44E\" stroke=\"#2E3338\" stroke-width=\"4\"/>",
-  "banaanivuori": "<polygon points=\"20,170 96,46 180,170\" fill=\"#8C8378\" stroke=\"#2E3338\" stroke-width=\"6.5\" stroke-linejoin=\"round\"/><polygon points=\"72,86 96,46 122,86 108,78 96,90 84,78\" fill=\"#EDEAE2\" stroke=\"#2E3338\" stroke-width=\"5\" stroke-linejoin=\"round\"/>",
+  "taikavuori": "<polygon points=\"20,170 96,46 180,170\" fill=\"#8C8378\" stroke=\"#2E3338\" stroke-width=\"6.5\" stroke-linejoin=\"round\"/><polygon points=\"72,86 96,46 122,86 108,78 96,90 84,78\" fill=\"#EDEAE2\" stroke=\"#2E3338\" stroke-width=\"5\" stroke-linejoin=\"round\"/><line x1=\"94\" y1=\"96\" x2=\"118\" y2=\"44\" stroke=\"#7D5438\" stroke-width=\"8\" stroke-linecap=\"round\"/><polygon points=\"122,22 128,36 144,38 132,48 136,64 122,55 108,64 112,48 100,38 116,36\" fill=\"#F0C946\" stroke=\"#2E3338\" stroke-width=\"4\" stroke-linejoin=\"round\"/>",
   "laava": "<rect x=\"0\" y=\"0\" width=\"200\" height=\"200\" fill=\"#F5D3A8\" opacity=\"0.55\"/><path d=\"M0 112 Q50 84 100 112 T200 112 L200 200 L0 200 Z\" fill=\"#E37C58\"/><path d=\"M0 132 Q50 108 100 132 T200 132 L200 200 L0 200 Z\" fill=\"#F0A756\"/><ellipse cx=\"52\" cy=\"108\" rx=\"26\" ry=\"15\" fill=\"#6F767E\" stroke=\"#2E3338\" stroke-width=\"5.5\"/><ellipse cx=\"106\" cy=\"84\" rx=\"26\" ry=\"15\" fill=\"#7D848D\" stroke=\"#2E3338\" stroke-width=\"5.5\"/><ellipse cx=\"152\" cy=\"116\" rx=\"25\" ry=\"14\" fill=\"#6F767E\" stroke=\"#2E3338\" stroke-width=\"5.5\"/><circle cx=\"72\" cy=\"158\" r=\"8\" fill=\"#F8D872\"/><circle cx=\"132\" cy=\"166\" r=\"6\" fill=\"#F8D872\"/>",
   "katapultti": "<line x1=\"68\" y1=\"138\" x2=\"146\" y2=\"62\" stroke=\"#8C5937\" stroke-width=\"11\" stroke-linecap=\"round\"/><line x1=\"68\" y1=\"138\" x2=\"146\" y2=\"62\" stroke=\"#2E3338\" stroke-width=\"4.5\" stroke-linecap=\"round\"/><path d=\"M134 50 C148 40 166 54 156 70 Z\" fill=\"#8C5937\" stroke=\"#2E3338\" stroke-width=\"5.5\" stroke-linejoin=\"round\"/><path d=\"M126 52 C136 62 152 54 154 38 C144 46 136 48 128 46 Z\" fill=\"#F0C946\" stroke=\"#2E3338\" stroke-width=\"4.5\" stroke-linejoin=\"round\"/><polygon points=\"56,144 96,94 116,144\" fill=\"none\" stroke=\"#2E3338\" stroke-width=\"7\" stroke-linejoin=\"round\"/><rect x=\"34\" y=\"138\" width=\"128\" height=\"18\" rx=\"6\" fill=\"#9E6A44\" stroke=\"#2E3338\" stroke-width=\"6\"/><circle cx=\"56\" cy=\"158\" r=\"16\" fill=\"#6E4B32\" stroke=\"#2E3338\" stroke-width=\"5.5\"/><circle cx=\"140\" cy=\"158\" r=\"16\" fill=\"#6E4B32\" stroke=\"#2E3338\" stroke-width=\"5.5\"/>",
   "merirosvo": "<circle cx=\"100\" cy=\"108\" r=\"40\" fill=\"#EBC5A2\" stroke=\"#2E3338\" stroke-width=\"6\"/><path d=\"M46 80 C62 46 138 46 154 80 L142 86 L58 86 Z\" fill=\"#3B424A\" stroke=\"#2E3338\" stroke-width=\"6\" stroke-linejoin=\"round\"/><rect x=\"56\" y=\"76\" width=\"88\" height=\"12\" fill=\"#C94B43\" stroke=\"#2E3338\" stroke-width=\"4.5\"/><circle cx=\"80\" cy=\"112\" r=\"20\" fill=\"#46525E\" stroke=\"#2E3338\" stroke-width=\"6\"/><circle cx=\"120\" cy=\"112\" r=\"20\" fill=\"#46525E\" stroke=\"#2E3338\" stroke-width=\"6\"/><circle cx=\"80\" cy=\"112\" r=\"11\" fill=\"#8FBAD6\"/><circle cx=\"120\" cy=\"112\" r=\"11\" fill=\"#8FBAD6\"/><rect x=\"94\" y=\"106\" width=\"12\" height=\"10\" fill=\"#2E3338\"/><path d=\"M84 140 Q100 150 116 140\" fill=\"none\" stroke=\"#2E3338\" stroke-width=\"5\" stroke-linecap=\"round\"/>",
@@ -44,17 +44,26 @@ window.TavupeliArt = (() => {
   "accent-grass": "<path d=\"M62 152 Q52 104 38 82 Q68 104 82 148 M98 152 Q98 92 104 62 Q112 96 112 152 M122 150 Q140 106 160 88 Q144 120 134 152\" fill=\"none\" stroke=\"#7FA37A\" stroke-width=\"10\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/>",
   "accent-pebbles": "<ellipse cx=\"76\" cy=\"130\" rx=\"34\" ry=\"20\" fill=\"#CFC8BA\" stroke=\"#6D6962\" stroke-width=\"6\"/><ellipse cx=\"134\" cy=\"136\" rx=\"26\" ry=\"15\" fill=\"#DFD9CC\" stroke=\"#6D6962\" stroke-width=\"6\"/><ellipse cx=\"112\" cy=\"104\" rx=\"20\" ry=\"12\" fill=\"#C4BDB0\" stroke=\"#6D6962\" stroke-width=\"6\"/>",
   "accent-bush": "<path d=\"M38 148 C30 118 52 94 78 98 C86 72 126 70 136 98 C162 96 176 122 162 148 Z\" fill=\"#94B58D\" stroke=\"#4A5848\" stroke-width=\"6\" stroke-linejoin=\"round\"/>",
-  "accent-waves": "<path d=\"M24 88 Q56 72 88 88 T152 88 T182 84 M40 124 Q74 108 108 124 T172 120\" fill=\"none\" stroke=\"#94B8CF\" stroke-width=\"9\" stroke-linecap=\"round\"/>",
   "accent-flower": "<path d=\"M74 152 Q66 112 54 96 M100 152 Q100 106 104 82 M126 152 Q138 114 150 100\" fill=\"none\" stroke=\"#7FA37A\" stroke-width=\"9\" stroke-linecap=\"round\"/><circle cx=\"104\" cy=\"74\" r=\"13\" fill=\"#F0C946\" stroke=\"#5E5B52\" stroke-width=\"5\"/>"
 };
 
   const resolved = new Map();
+  const decodedCache = new Map();
   let preloadPromise = null;
+  let preloaded = false;
 
   function probeUrl(url) {
     return new Promise(resolve => {
       const img = new Image();
-      img.onload = () => resolve(url);
+      img.decoding = 'sync';
+      img.onload = () => {
+        const done = () => resolve({ url, img });
+        if (typeof img.decode === 'function') {
+          img.decode().then(done).catch(done);
+        } else {
+          done();
+        }
+      };
       img.onerror = () => resolve(null);
       img.src = url;
     });
@@ -66,12 +75,18 @@ window.TavupeliArt = (() => {
 
     const webp = await probeUrl(`./img/${folder}/${id}.webp`);
     if (webp) {
-      resolved.set(key, webp);
-      return webp;
+      resolved.set(key, webp.url);
+      decodedCache.set(key, webp.img);
+      return webp.url;
     }
     const png = await probeUrl(`./img/${folder}/${id}.png`);
-    resolved.set(key, png || null);
-    return png || null;
+    if (png) {
+      resolved.set(key, png.url);
+      decodedCache.set(key, png.img);
+      return png.url;
+    }
+    resolved.set(key, null);
+    return null;
   }
 
   function preloadAll() {
@@ -79,8 +94,15 @@ window.TavupeliArt = (() => {
     const jobs = [];
     Object.keys(BOARD_SVGS).forEach(id => jobs.push(resolveAsset('board', id)));
     (window.TAVUPELI_WORDS || []).forEach(w => jobs.push(resolveAsset('words', w.id)));
-    preloadPromise = Promise.all(jobs);
+    preloadPromise = Promise.all(jobs).then(res => {
+      preloaded = true;
+      return res;
+    });
     return preloadPromise;
+  }
+
+  function isPreloaded() {
+    return preloaded;
   }
 
   function getResolvedUrl(folder, id) {
@@ -98,9 +120,17 @@ window.TavupeliArt = (() => {
   }
 
   function renderHtml(container, folder, id, alt = '') {
-    const url = getResolvedUrl(folder, id);
+    const key = `${folder}/${id}`;
+    const url = resolved.get(key) || null;
     if (url) {
-      container.innerHTML = `<img src="${url}" alt="${alt}" draggable="false" />`;
+      const cached = decodedCache.get(key);
+      const img = cached ? cached.cloneNode(false) : new Image();
+      img.src = url;
+      img.alt = alt;
+      img.draggable = false;
+      img.decoding = 'sync';
+      container.innerHTML = '';
+      container.appendChild(img);
     } else {
       container.innerHTML = getSvgMarkup(folder, id);
     }
@@ -144,7 +174,7 @@ window.TavupeliArt = (() => {
   function getPawPrintSvg() {
     const url = getResolvedUrl('board', 'karhu-tassu');
     if (url) {
-      return `<img class="bear-paw" src="${url}" alt="" draggable="false" />`;
+      return `<img class="bear-paw" src="${url}" alt="" draggable="false" decoding="sync" />`;
     }
     return `
       <svg class="bear-paw" viewBox="0 0 64 64" aria-hidden="true">
@@ -159,6 +189,7 @@ window.TavupeliArt = (() => {
 
   return {
     preloadAll,
+    isPreloaded,
     resolveAsset,
     getResolvedUrl,
     getSvgMarkup,

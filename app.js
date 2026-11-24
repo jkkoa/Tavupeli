@@ -1,4 +1,4 @@
-/* Tavupeli v4 — Main Game Engine & UI Controller */
+/* Tavupeli v5 — 60fps Two-Layer Tabletop Engine & UI Controller */
 (() => {
   'use strict';
 
@@ -13,13 +13,25 @@
   const TIMING = {
     TAP_DEBOUNCE_MS: 160,
     LIIKU_GUARD_MS: 450,
-    SYLLABLE_GLIDE_MS: 500,
-    SYLLABLE_PAUSE_MS: 420,
+    SYLLABLE_GLIDE_MS: 420,
+    SYLLABLE_PAUSE_MS: 260,
     TWIST_HOLD_MS: 1150,
-    BEAR_REVEAL_HOLD_MS: 1050,
-    BEAR_ZERO_HOLD_MS: 2200,
-    BEAR_GLIDE_MS: 620,
-    BEAR_PAUSE_MS: 480
+    TWIST_STEP_MS: 380,
+    TWIST_PAUSE_MS: 200,
+    BEAR_REVEAL_HOLD_MS: 1000,
+    BEAR_ZERO_HOLD_MS: 2100,
+    BEAR_GLIDE_MS: 540,
+    BEAR_PAUSE_MS: 340
+  };
+
+  // Soft muted storybook tile washes behind inside-square icons (harmonizes with Laava)
+  const TILE_WASHES = {
+    taikavuori:    { fill: '#EEF2F7', stroke: '#C8D1DC' },
+    katapultti:    { fill: '#F6EFE2', stroke: '#D8CEBC' },
+    merirosvo:     { fill: '#E9F2F1', stroke: '#C3D5D2' },
+    taikapata:     { fill: '#EFEAF4', stroke: '#CFC6D9' },
+    taikaportti:   { fill: '#EBEEF7', stroke: '#C3CAE0' },
+    banaaninkuori: { fill: '#FBF4DF', stroke: '#DFD2AC' }
   };
 
   const defaultPrefs = {
@@ -38,6 +50,10 @@
   let runToken = 0;
   let lastActionAt = 0;
   let liikuReadyAt = 0;
+  let activeRafId = null;
+
+  // Live SVG coordinates of each token for silky rAF interpolation
+  const tokenCoords = new Map();
 
   const setupRefs = {
     initialized: false,
@@ -45,6 +61,13 @@
     stations: [],
     twists: [],
     letters: []
+  };
+
+  const panelTopRefs = {
+    playerCount: 0,
+    dots: [],
+    lastMuted: null,
+    exitInitialized: false
   };
 
   let taputusRefs = null;
@@ -64,6 +87,7 @@
     btnResumeGame: document.getElementById('btn-resume-game'),
 
     boardSvg: document.getElementById('board-svg'),
+    tokensSvg: document.getElementById('tokens-svg'),
     playerDots: document.getElementById('player-dots'),
     btnMute: document.getElementById('btn-mute'),
     btnExit: document.getElementById('btn-exit'),
@@ -83,6 +107,10 @@
     endLine: document.getElementById('end-line'),
     btnEndNew: document.getElementById('btn-end-new')
   };
+
+  function migrateStationId(id) {
+    return id === 'banaanivuori' ? 'taikavuori' : id;
+  }
 
   function guardTap(ms = TIMING.TAP_DEBOUNCE_MS) {
     const now = performance.now();
@@ -106,17 +134,27 @@
     });
   }
 
+  function cancelActiveRaf() {
+    if (activeRafId !== null) {
+      cancelAnimationFrame(activeRafId);
+      activeRafId = null;
+    }
+  }
+
   function loadPrefs() {
     try {
       const raw = localStorage.getItem(STORAGE_KEYS.PREFS);
       if (!raw) return { ...defaultPrefs };
       const p = JSON.parse(raw);
       const sq = Number(p.squareCount);
+      const validIds = new Set(window.TAVUPELI_STATIONS.map(s => s.id));
+      const mappedStations = Array.isArray(p.activeStations)
+        ? [...new Set(p.activeStations.map(migrateStationId).filter(id => validIds.has(id)))]
+        : [...defaultPrefs.activeStations];
+
       return {
         playerCount: Math.max(1, Math.min(7, Number(p.playerCount) || 4)),
-        activeStations: Array.isArray(p.activeStations)
-          ? p.activeStations.filter(id => window.TAVUPELI_STATIONS.some(s => s.id === id))
-          : [...defaultPrefs.activeStations],
+        activeStations: mappedStations,
         twistsEnabled: typeof p.twistsEnabled === 'boolean' ? p.twistsEnabled : true,
         squareCount: Number.isFinite(sq)
           ? Math.max(SQUARE_BOUNDS.MIN, Math.min(SQUARE_BOUNDS.MAX, Math.round(sq)))
@@ -146,6 +184,19 @@
       if (!raw) return null;
       const g = JSON.parse(raw);
       if (!g || !Array.isArray(g.players) || g.phase === 'ended') return null;
+
+      // Migrate legacy banaanivuori feature IDs cleanly
+      if (g.featureMap) {
+        Object.values(g.featureMap).forEach(f => {
+          if (f && f.id === 'banaanivuori') f.id = 'taikavuori';
+        });
+      }
+      if (g.currentStation && g.currentStation.id === 'banaanivuori') {
+        const st = window.TAVUPELI_STATIONS.find(s => s.id === 'taikavuori');
+        g.currentStation.id = 'taikavuori';
+        g.currentStation.name = st ? st.name : 'Taikavuori';
+        g.currentStation.desc = st ? st.desc : '';
+      }
       return g;
     } catch {
       return null;
@@ -353,6 +404,7 @@
 
   function startNewGame() {
     if (!guardTap()) return;
+    cancelActiveRaf();
     runToken++;
     isAnimating = false;
 
@@ -403,6 +455,7 @@
     if (!guardTap()) return;
     const saved = loadSavedGame();
     if (!saved) return;
+    cancelActiveRaf();
     runToken++;
     isAnimating = false;
 
@@ -428,12 +481,13 @@
     el.gameScreen.classList.remove('hidden');
 
     buildBoardSvg();
-    updateBoardTokens(true);
+    placeTokensInstant();
     renderPanelTop();
     renderPhase(true);
   }
 
   function returnToSetup() {
+    cancelActiveRaf();
     runToken++;
     isAnimating = false;
     state = null;
@@ -446,6 +500,7 @@
     updateSetupUi();
   }
 
+  /* CONSISTENT QUIET CHEVRONS IN EVERY TILE GAP */
   function buildPathCuesSvg(tiles) {
     let out = '';
     for (let i = 0; i < tiles.length - 1; i++) {
@@ -454,42 +509,24 @@
       const dx = b.col - a.col;
       const dy = b.row - a.row;
 
-      let mx;
-      let my;
       let pts;
-
       if (dx === 1 && dy === 0) {
-        // Rightward gap
-        mx = a.x + a.w + 2.5;
-        my = a.y + a.h / 2;
-        pts = `${mx - 1.8},${my - 3.6} ${mx + 2},${my} ${mx - 1.8},${my + 3.6}`;
+        const mx = a.x + a.w + 2.5;
+        const my = a.y + a.h / 2;
+        pts = `${mx - 1.6},${my - 3.4} ${mx + 1.8},${my} ${mx - 1.6},${my + 3.4}`;
       } else if (dx === -1 && dy === 0) {
-        // Leftward gap
-        mx = a.x - 2.5;
-        my = a.y + a.h / 2;
-        pts = `${mx + 1.8},${my - 3.6} ${mx - 2},${my} ${mx + 1.8},${my + 3.6}`;
+        const mx = a.x - 2.5;
+        const my = a.y + a.h / 2;
+        pts = `${mx + 1.6},${my - 3.4} ${mx - 1.8},${my} ${mx + 1.6},${my + 3.4}`;
       } else if (dy === 1 && dx === 0) {
-        // Downward gap
-        mx = a.x + a.w / 2;
-        my = a.y + a.h + 2.5;
-        pts = `${mx - 3.6},${my - 1.8} ${mx},${my + 2} ${mx + 3.6},${my - 1.8}`;
+        const mx = a.x + a.w / 2;
+        const my = a.y + a.h + 2.5;
+        pts = `${mx - 3.4},${my - 1.6} ${mx},${my + 1.8} ${mx + 3.4},${my - 1.6}`;
       } else {
         continue;
       }
 
-      // Show quiet directional chevrons around turns and every 3rd step for clean visual rhythm
-      const isTurnStep =
-        i === 0 ||
-        i === tiles.length - 2 ||
-        dy !== 0 ||
-        (i > 0 && (tiles[i].row !== tiles[i - 1].row)) ||
-        (i + 2 < tiles.length && (tiles[i + 2].row !== b.row));
-
-      if (isTurnStep) {
-        out += `<polyline points="${pts}" fill="none" stroke="#C5BEB0" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" />`;
-      } else {
-        out += `<circle cx="${mx.toFixed(1)}" cy="${my.toFixed(1)}" r="1.5" fill="#D5CFC2" />`;
-      }
+      out += `<polyline points="${pts}" fill="none" stroke="#C8C1B3" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />`;
     }
     return out;
   }
@@ -505,7 +542,6 @@
       let x1, y1, x2, y2, cx, cy;
 
       if (sameRow) {
-        // Check if either endpoint or the middle tile has a tile directly above it
         const dir = target.col > t.col ? 1 : -1;
         const midTile = tiles[idx + 1];
         const hasTileAbove = [t, midTile, target].some(
@@ -517,15 +553,14 @@
           y1 = t.y + t.h - 1;
           y2 = target.y + target.h - 1;
           cx = (x1 + x2) / 2;
-          cy = Math.max(y1, y2) + 24;
+          cy = Math.max(y1, y2) + 23;
         } else {
           y1 = t.y + 1;
           y2 = target.y + 1;
           cx = (x1 + x2) / 2;
-          cy = Math.min(y1, y2) - 24;
+          cy = Math.min(y1, y2) - 23;
         }
       } else {
-        // Graceful curved connector around corners
         x1 = t.x + t.w / 2;
         y1 = t.y + t.h / 2;
         x2 = target.x + target.w / 2;
@@ -539,7 +574,6 @@
         cy = (y1 + y2) / 2 + ny * 28;
       }
 
-      // Compute clean tangent arrow at destination endpoint
       const tx = x2 - cx;
       const ty = y2 - cy;
       const tLen = Math.hypot(tx, ty) || 1;
@@ -563,9 +597,12 @@
     return out;
   }
 
+  /* TWO-LAYER SVG: STATIC #board-svg + GPU-ISOLATED #tokens-svg */
   function buildBoardSvg() {
     const { tiles, viewBox, washes, vignettes, accents } = boardData;
-    el.boardSvg.setAttribute('viewBox', viewBox.join(' '));
+    const vbStr = viewBox.join(' ');
+    el.boardSvg.setAttribute('viewBox', vbStr);
+    el.tokensSvg.setAttribute('viewBox', vbStr);
 
     let html = '<defs>';
     tiles.forEach(t => {
@@ -575,14 +612,14 @@
     });
     html += '</defs>';
 
-    // 1. Organic ground washes beneath landmarks
+    // 1. Organic ground patches beneath landmarks
     html += '<g class="layer-washes">';
     washes.forEach(w => {
       html += `<path d="${w.d}" fill="${w.color}" />`;
     });
     html += '</g>';
 
-    // 2. Sparse calm Style B scenic map accents
+    // 2. Sparse Style B scenic accents
     html += '<g class="layer-accents">';
     (accents || []).forEach(a => {
       html += `<g opacity="${a.opacity}">${window.TavupeliArt.buildBoardSvgNode(a.id, a.x, a.y, a.w, a.h)}</g>`;
@@ -598,17 +635,21 @@
     html += `<g id="castle-anchor">${renderCastleMarkup()}</g>`;
     html += '</g>';
 
-    // 4. Subtle path cues in tile gaps
+    // 4. Consistent quiet directional chevrons in every tile gap
     html += `<g class="layer-path-cues">${buildPathCuesSvg(tiles)}</g>`;
 
-    // 5. Tiles (die-cut depth, Start/Finish tints, subtle empty-square pebbles, inside-square icons)
+    // 5. Tiles (die-cut depth, soft pastel washes for stations/twists, empty pebbles, Start/Finish tints)
     html += '<g class="layer-tiles">';
     tiles.forEach(t => {
-      const fill = t.isStart ? '#FCF9F1' : (t.isFinish ? '#FFFDF5' : '#FFFFFF');
-      const stroke = t.isFinish ? '#DEC47B' : '#D2CCC0';
+      const wash = t.feature ? TILE_WASHES[t.feature.id] : null;
+      const fill = t.isStart
+        ? '#FCF9F1'
+        : (t.isFinish ? '#FFFDF5' : (wash ? wash.fill : '#FFFFFF'));
+      const stroke = t.isFinish
+        ? '#DEC47B'
+        : (wash ? wash.stroke : '#D2CCC0');
       const strokeW = t.isFinish ? '2.2' : '1.8';
 
-      // Subtle 2px die-cut tile thickness
       html += `<rect x="${t.x}" y="${t.y + 2.4}" width="${t.w}" height="${t.h}" rx="10" fill="#E1DBCE" />`;
       html += `<rect x="${t.x}" y="${t.y}" width="${t.w}" height="${t.h}" rx="10" fill="${fill}" stroke="${stroke}" stroke-width="${strokeW}" />`;
 
@@ -617,13 +658,11 @@
         html += `<g clip-path="url(#clip-tile-${t.index})">${window.TavupeliArt.buildBoardSvgNode('laava', t.x + inset, t.y + inset, t.w - inset * 2, t.h - inset * 2, 'laava-in-tile')}</g>`;
         html += `<rect x="${t.x}" y="${t.y}" width="${t.w}" height="${t.h}" rx="10" fill="none" stroke="#D2CCC0" stroke-width="1.8" />`;
       } else if (t.feature) {
-        // Inside-square illustration, cleanly centered with comfortable margin
         const iconSize = 50;
         const ix = t.x + (t.w - iconSize) / 2;
         const iy = t.y + (t.h - iconSize) / 2;
         html += window.TavupeliArt.buildBoardSvgNode(t.feature.id, ix, iy, iconSize, iconSize, 'tile-icon-inside');
       } else if (!t.isStart && !t.isFinish) {
-        // Subtle warm-stone stepping pebbles for plain empty squares (zero distraction)
         const cx = t.x + t.w / 2;
         const cy = t.y + t.h / 2;
         html += `
@@ -639,12 +678,13 @@
 
     // 6. Dotted curved portal arcs (Taikaportti → +2 square)
     html += `<g class="layer-portals">${buildPortalArcsSvg(tiles)}</g>`;
+    el.boardSvg.innerHTML = html;
 
-    // 7. Tokens (Style B Bear + painted wooden-disc player pawns with shadow & static active ring)
-    html += '<g id="layer-tokens">';
-    html += `<g id="token-bear" class="token-group bear-token">${window.TavupeliArt.getBearTokenSvg()}</g>`;
+    // 7. Tokens in lightweight separate #tokens-svg (zero board repaints when moving!)
+    let tokHtml = '<g id="layer-tokens">';
+    tokHtml += `<g id="token-bear" class="token-group bear-token">${window.TavupeliArt.getBearTokenSvg()}</g>`;
     state.players.forEach(p => {
-      html += `
+      tokHtml += `
         <g id="token-p-${p.id}" class="token-group${p.paused ? ' paused-token' : ''}">
           <circle class="token-active-ring" cx="0" cy="0" r="15.2" fill="none" stroke="${p.color}" stroke-width="2.4" stroke-dasharray="3.5 3" />
           <ellipse cx="0" cy="4.2" rx="11.2" ry="9.4" fill="rgba(34,30,26,0.24)" />
@@ -653,9 +693,9 @@
           <ellipse cx="-3" cy="-3.4" rx="3.4" ry="2.2" transform="rotate(-24 -3 -3.4)" fill="rgba(255,255,255,0.28)" />
         </g>`;
     });
-    html += '</g>';
-
-    el.boardSvg.innerHTML = html;
+    tokHtml += '</g>';
+    el.tokensSvg.innerHTML = tokHtml;
+    tokenCoords.clear();
   }
 
   function renderCastleMarkup() {
@@ -680,33 +720,26 @@
       if (!node) return;
       const isActive = p.id === activeId && !p.paused && !p.finished;
       node.classList.toggle('active-token', isActive);
-      if (isActive && layer) {
+      // Only raise z-order when not already on top (prevents unnecessary SVG mutation)
+      if (isActive && layer && layer.lastElementChild !== node) {
         layer.appendChild(node);
       }
     });
 
     if (isBearPhase && layer) {
       const bearNode = document.getElementById('token-bear');
-      if (bearNode) layer.appendChild(bearNode);
+      if (bearNode && layer.lastElementChild !== bearNode) {
+        layer.appendChild(bearNode);
+      }
     }
   }
 
-  function positionEl(node, x, y, instant) {
-    if (!node) return;
-    if (instant) node.classList.add('no-transition');
-    node.style.transform = `translate(${x}px, ${y}px)`;
-    if (instant) {
-      node.getBoundingClientRect();
-      node.classList.remove('no-transition');
-    }
-  }
-
-  function updateBoardTokens(instant = false) {
+  function computeAllTokenTargets() {
     const tiles = boardData.tiles;
-    const bearEl = document.getElementById('token-bear');
+    const targets = new Map();
 
     if (state.bearPos < 0) {
-      positionEl(bearEl, boardData.bearLurk.x, boardData.bearLurk.y, instant);
+      targets.set('bear', { x: boardData.bearLurk.x, y: boardData.bearLurk.y });
     }
 
     const byTile = new Map();
@@ -723,50 +756,146 @@
       const tile = tiles[tileIdx];
       if (!tile) return;
       const packed = window.TavupeliBoard.computeTokenPositions(tile, group.players, group.bear);
-
-      if (packed.bear) {
-        positionEl(bearEl, packed.bear.x, packed.bear.y, instant);
-      }
-
+      if (packed.bear) targets.set('bear', packed.bear);
       group.players.forEach(pId => {
-        const pos = packed.players[pId];
-        const pEl = document.getElementById(`token-p-${pId}`);
-        const pObj = state.players[pId];
-        if (pEl && pos) {
-          pEl.classList.toggle('paused-token', pObj.paused);
-          positionEl(pEl, pos.x, pos.y, instant);
-        }
+        if (packed.players[pId]) targets.set(`p-${pId}`, packed.players[pId]);
       });
     });
 
+    return targets;
+  }
+
+  function applyTokenTransform(key, x, y) {
+    const id = key === 'bear' ? 'token-bear' : `token-${key}`;
+    const node = document.getElementById(id);
+    if (node) {
+      node.setAttribute('transform', `translate(${x.toFixed(2)} ${y.toFixed(2)})`);
+    }
+    tokenCoords.set(key, { x, y });
+  }
+
+  function placeTokensInstant() {
+    cancelActiveRaf();
+    const targets = computeAllTokenTargets();
+    targets.forEach((pos, key) => {
+      applyTokenTransform(key, pos.x, pos.y);
+    });
+    state.players.forEach(p => {
+      const pEl = document.getElementById(`token-p-${p.id}`);
+      if (pEl) pEl.classList.toggle('paused-token', p.paused);
+    });
     updateActiveTokenHighlight();
   }
 
-  function renderPanelTop() {
-    el.playerDots.innerHTML = '';
-    const isBearPhase = state.phase === 'bear-ready' || state.phase === 'bear-move';
+  /* 60FPS REQUESTANIMATIONFRAME TABLETOP HOP-GLIDE */
+  function animateTokensStep(durationMs, arcKey, arcHeight, myToken) {
+    cancelActiveRaf();
+    const targets = computeAllTokenTargets();
+    const entries = [];
 
-    state.players.forEach((p, idx) => {
-      const dot = document.createElement('button');
-      dot.type = 'button';
-      dot.className = 'player-dot-btn';
-      dot.style.setProperty('--dot-color', p.color);
-      if (!isBearPhase && idx === state.turnIndex && !p.paused && !p.finished) {
-        dot.classList.add('active');
+    targets.forEach((to, key) => {
+      const from = tokenCoords.get(key) || to;
+      const dx = to.x - from.x;
+      const dy = to.y - from.y;
+      if (Math.abs(dx) > 0.05 || Math.abs(dy) > 0.05) {
+        const id = key === 'bear' ? 'token-bear' : `token-${key}`;
+        const node = document.getElementById(id);
+        if (node) {
+          entries.push({
+            key,
+            node,
+            fx: from.x,
+            fy: from.y,
+            tx: to.x,
+            ty: to.y,
+            lift: key === arcKey ? arcHeight : 0
+          });
+        }
       }
-      if (p.paused) dot.classList.add('paused');
-      if (p.finished) dot.classList.add('finished');
-      dot.setAttribute('aria-label', `Pelaaja ${idx + 1}`);
-      dot.addEventListener('click', () => togglePlayerPause(idx));
-      el.playerDots.appendChild(dot);
+    });
+
+    if (entries.length === 0) return Promise.resolve(myToken === runToken);
+
+    return new Promise(resolve => {
+      const start = performance.now();
+      const easeOutCubic = t => 1 - Math.pow(1 - t, 3);
+
+      const frame = now => {
+        if (myToken !== runToken) {
+          activeRafId = null;
+          resolve(false);
+          return;
+        }
+        const rawT = Math.min(1, (now - start) / durationMs);
+        const e = easeOutCubic(rawT);
+        const arcFactor = Math.sin(rawT * Math.PI);
+
+        for (let i = 0; i < entries.length; i++) {
+          const item = entries[i];
+          const x = item.fx + (item.tx - item.fx) * e;
+          const y = item.fy + (item.ty - item.fy) * e - item.lift * arcFactor;
+          item.node.setAttribute('transform', `translate(${x.toFixed(2)} ${y.toFixed(2)})`);
+        }
+
+        if (rawT < 1) {
+          activeRafId = requestAnimationFrame(frame);
+        } else {
+          activeRafId = null;
+          for (let i = 0; i < entries.length; i++) {
+            const item = entries[i];
+            tokenCoords.set(item.key, { x: item.tx, y: item.ty });
+          }
+          resolve(true);
+        }
+      };
+
+      activeRafId = requestAnimationFrame(frame);
+    });
+  }
+
+  /* TOP BAR — BUILT ONCE PER GAME, UPDATED IN PLACE (ZERO DOM CHURN) */
+  function renderPanelTop() {
+    if (!state) return;
+
+    if (panelTopRefs.playerCount !== state.players.length || panelTopRefs.dots.length !== state.players.length) {
+      el.playerDots.innerHTML = '';
+      panelTopRefs.dots = [];
+      panelTopRefs.playerCount = state.players.length;
+
+      state.players.forEach((p, idx) => {
+        const dot = document.createElement('button');
+        dot.type = 'button';
+        dot.className = 'player-dot-btn';
+        dot.style.setProperty('--dot-color', p.color);
+        dot.setAttribute('aria-label', `Pelaaja ${idx + 1}`);
+        dot.addEventListener('click', () => togglePlayerPause(idx));
+        el.playerDots.appendChild(dot);
+        panelTopRefs.dots.push(dot);
+      });
+    }
+
+    const isBearPhase = state.phase === 'bear-ready' || state.phase === 'bear-move';
+    state.players.forEach((p, idx) => {
+      const dot = panelTopRefs.dots[idx];
+      if (!dot) return;
+      dot.style.setProperty('--dot-color', p.color);
+      dot.classList.toggle('active', !isBearPhase && idx === state.turnIndex && !p.paused && !p.finished);
+      dot.classList.toggle('paused', p.paused);
+      dot.classList.toggle('finished', p.finished);
     });
 
     const muted = window.TavupeliAudio.isMuted();
-    el.btnMute.innerHTML = muted
-      ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H2v6h4l5 4V5z"/><line x1="22" y1="9" x2="16" y2="15"/><line x1="16" y1="9" x2="22" y2="15"/></svg>`
-      : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M19 5a10 10 0 0 1 0 14"/></svg>`;
+    if (panelTopRefs.lastMuted !== muted) {
+      panelTopRefs.lastMuted = muted;
+      el.btnMute.innerHTML = muted
+        ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H2v6h4l5 4V5z"/><line x1="22" y1="9" x2="16" y2="15"/><line x1="16" y1="9" x2="22" y2="15"/></svg>`
+        : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M19 5a10 10 0 0 1 0 14"/></svg>`;
+    }
 
-    el.btnExit.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`;
+    if (!panelTopRefs.exitInitialized) {
+      panelTopRefs.exitInitialized = true;
+      el.btnExit.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`;
+    }
   }
 
   function togglePlayerPause(idx) {
@@ -778,7 +907,7 @@
     if (!p.paused && activeUnfinished.length <= 1) return;
 
     p.paused = !p.paused;
-    updateBoardTokens(true);
+    placeTokensInstant();
 
     if (p.paused && state.turnIndex === idx && (state.phase === 'player-draw' || state.phase === 'player-count' || state.phase === 'player-reveal')) {
       advanceTurnAfterPlayer();
@@ -896,7 +1025,6 @@
       dot.addEventListener('click', () => {
         if (isAnimating || state.phase !== 'player-count') return;
         if (i <= state.countInput) {
-          // Tapping the last lit dot steps down by 1 (allowing 1 -> 0); tapping an earlier dot jumps to that count
           state.countInput = i === state.countInput ? i - 1 : i;
           if (state.countInput > 0) {
             window.TavupeliAudio.playSyllable(state.countInput - 1);
@@ -951,7 +1079,6 @@
     state.phase = 'player-reveal';
     saveGameState();
 
-    // Keep the existing word card in place (zero flash!) and smoothly reveal numeral + tavuviiva
     const existingCard = document.getElementById('active-word-card');
     if (existingCard && !existingCard.querySelector('.reveal-block')) {
       existingCard.appendChild(createRevealBlock(state.currentWord));
@@ -1005,17 +1132,21 @@
     el.controlDock.innerHTML = '';
     el.cardStage.innerHTML = '';
 
+    // Ensure active pawn is on top ONCE before movement begins
+    updateActiveTokenHighlight();
+
     for (let i = 0; i < sylCount; i++) {
       window.TavupeliAudio.playSyllable(i);
       if (p.pos < finishIdx) {
         p.pos += 1;
-        updateBoardTokens(false);
+        const ok = await animateTokensStep(TIMING.SYLLABLE_GLIDE_MS, `p-${p.id}`, 5.5, myToken);
+        if (!ok) return;
         if (p.pos === finishIdx) {
           onPlayerReachedFinish(p);
         }
       }
-      if (!(await sleep(TIMING.SYLLABLE_GLIDE_MS + TIMING.SYLLABLE_PAUSE_MS, myToken))) return;
       if (p.finished) break;
+      if (!(await sleep(TIMING.SYLLABLE_PAUSE_MS, myToken))) return;
     }
 
     saveGameState();
@@ -1102,13 +1233,14 @@
       if (nextPos !== p.pos) {
         p.pos = nextPos;
         window.TavupeliAudio.playSyllable(dir > 0 ? s + 2 : Math.max(0, 2 - s));
-        updateBoardTokens(false);
+        const ok = await animateTokensStep(TIMING.TWIST_STEP_MS, `p-${p.id}`, 5, myToken);
+        if (!ok) return;
         if (p.pos === finishIdx) {
           onPlayerReachedFinish(p);
         }
       }
-      if (!(await sleep(TIMING.SYLLABLE_GLIDE_MS + 280, myToken))) return;
       if (p.finished) break;
+      if (!(await sleep(TIMING.TWIST_PAUSE_MS, myToken))) return;
     }
 
     saveGameState();
@@ -1131,7 +1263,8 @@
   }
 
   function openStation(stationId) {
-    const st = window.TAVUPELI_STATIONS.find(s => s.id === stationId);
+    const id = migrateStationId(stationId);
+    const st = window.TAVUPELI_STATIONS.find(s => s.id === id);
     if (!st) {
       isAnimating = false;
       advanceTurnAfterPlayer();
@@ -1139,7 +1272,7 @@
     }
 
     const letters = drawLetters(st.letters);
-    state.currentStation = { id: st.id, name: st.name, letters };
+    state.currentStation = { id: st.id, name: st.name, desc: st.desc || '', letters };
     state.phase = 'player-station';
     isAnimating = false;
     saveGameState();
@@ -1148,6 +1281,9 @@
 
   function renderStationCard(animateCard) {
     const st = state.currentStation;
+    const def = window.TAVUPELI_STATIONS.find(s => s.id === st.id);
+    const descText = st.desc || (def && def.desc) || '';
+
     const card = document.createElement('div');
     card.className = `game-card activity-card${animateCard ? ' card-enter' : ''}`;
 
@@ -1161,6 +1297,13 @@
 
     card.appendChild(art);
     card.appendChild(title);
+
+    if (descText) {
+      const desc = document.createElement('p');
+      desc.className = 'card-desc';
+      desc.textContent = descText;
+      card.appendChild(desc);
+    }
 
     if (st.letters && st.letters.length > 0) {
       const boxes = document.createElement('div');
@@ -1294,10 +1437,11 @@
         if (state.bearPos < finishIdx) {
           state.bearPos += 1;
           window.TavupeliAudio.playBearStep(s);
-          updateBoardTokens(false);
+          const ok = await animateTokensStep(TIMING.BEAR_GLIDE_MS, 'bear', 4, myToken);
+          if (!ok) return;
         }
-        if (!(await sleep(TIMING.BEAR_GLIDE_MS + TIMING.BEAR_PAUSE_MS, myToken))) return;
         if (state.bearPos >= finishIdx) break;
+        if (!(await sleep(TIMING.BEAR_PAUSE_MS, myToken))) return;
       }
     }
 
@@ -1322,6 +1466,7 @@
   }
 
   function triggerEndScreen(winner) {
+    cancelActiveRaf();
     isAnimating = false;
     state.phase = 'ended';
     state.winner = winner;
@@ -1347,6 +1492,13 @@
   function closeExitModal() {
     el.exitModal.classList.add('hidden');
   }
+
+  // Silently unlock Web Audio on first user interaction
+  const unlockOnce = () => {
+    window.TavupeliAudio.unlock();
+    window.removeEventListener('pointerdown', unlockOnce);
+  };
+  window.addEventListener('pointerdown', unlockOnce, { passive: true });
 
   el.btnSqMinus.addEventListener('click', () => adjustSquares(-1));
   el.btnSqPlus.addEventListener('click', () => adjustSquares(1));
@@ -1384,11 +1536,12 @@
   }
 
   updateSetupUi();
+  const wasPreloaded = window.TavupeliArt.isPreloaded();
   window.TavupeliArt.preloadAll().then(() => {
     refreshSetupStationArt();
-    if (!el.gameScreen.classList.contains('hidden') && state) {
+    if (!wasPreloaded && !el.gameScreen.classList.contains('hidden') && state && !isAnimating) {
       buildBoardSvg();
-      updateBoardTokens(true);
+      placeTokensInstant();
       renderPhase(false);
     }
   });

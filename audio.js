@@ -89,5 +89,9 @@ window.TavupeliAudio = (() => {
     osc.stop(now + 0.48);
   }
 
-  return { setMuted, isMuted, playSyllable, playBearStep };
+  function unlock() {
+    ensureContext();
+  }
+
+  return { setMuted, isMuted, unlock, playSyllable, playBearStep };
 })();

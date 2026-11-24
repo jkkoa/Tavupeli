@@ -156,71 +156,69 @@ window.TavupeliBoard = (() => {
     const fin = tiles[tiles.length - 1];
 
     // Bear lurks 1 step behind Square 1
-    const bearLurk = { x: st.x - 42, y: st.y + S * 0.54 };
+    const bearLurk = { x: st.x - 40, y: st.y + S * 0.54 };
 
-    // Hero landmarks: larger shipwrecked Banaanilaiva + Castle; compact Triceratops + smaller half-buried Aarrearkku
-    const banaanilaiva = { x: st.x - 160, y: st.y - 98, w: 146, h: 118 };
-    const linna = { x: fin.x + fin.w + 18, y: fin.y + S - 134, w: 136, h: 140 };
+    // Hero landmarks tucked closer so the whole board zooms larger on 65" displays
+    const banaanilaiva = { x: st.x - 142, y: st.y - 84, w: 138, h: 112 };
+    const linna = { x: fin.x + fin.w + 12, y: fin.y + S - 130, w: 132, h: 136 };
 
     let triceratops;
     let aarrearkku;
     if (mode === '3row') {
-      triceratops = { x: (maxC + 1) * P + 26, y: 1.12 * P, w: 98, h: 90 };
-      aarrearkku = { x: -0.32 * P, y: 2.65 * P, w: 78, h: 68 };
+      triceratops = { x: (maxC + 1) * P + 22, y: 1.12 * P, w: 96, h: 88 };
+      aarrearkku = { x: -0.26 * P, y: 2.65 * P, w: 76, h: 66 };
     } else if (mode === '4stair') {
-      const ax = Math.max(0.22 * P, (midC * 0.48 - 0.55) * P);
-      aarrearkku = { x: ax, y: 2.95 * P, w: 78, h: 68 };
-      triceratops = { x: (midC + 1.55) * P, y: 4.55 * P, w: 98, h: 90 };
+      const ax = Math.max(0.2 * P, (midC * 0.48 - 0.55) * P);
+      aarrearkku = { x: ax, y: 2.95 * P, w: 76, h: 66 };
+      triceratops = { x: (midC + 1.52) * P, y: 4.55 * P, w: 96, h: 88 };
     } else {
-      const dx = (midC + 1.55) * P;
-      triceratops = { x: dx, y: 4.55 * P, w: 98, h: 90 };
-      aarrearkku = { x: dx + 14, y: 6.48 * P, w: 78, h: 68 };
+      const dx = (midC + 1.52) * P;
+      triceratops = { x: dx, y: 4.55 * P, w: 96, h: 88 };
+      aarrearkku = { x: dx + 14, y: 6.48 * P, w: 76, h: 66 };
     }
 
     const vignettes = { banaanilaiva, aarrearkku, triceratops, linna };
 
     const washes = [
       {
-        d: organicBlobPath(banaanilaiva.x + banaanilaiva.w * 0.5, banaanilaiva.y + banaanilaiva.h * 0.62, 86, 54, 0),
+        d: organicBlobPath(banaanilaiva.x + banaanilaiva.w * 0.5, banaanilaiva.y + banaanilaiva.h * 0.62, 80, 50, 0),
         color: '#EFEBE0'
       },
       {
-        d: organicBlobPath(triceratops.x + triceratops.w * 0.5, triceratops.y + triceratops.h * 0.56, 68, 52, 1),
+        d: organicBlobPath(triceratops.x + triceratops.w * 0.5, triceratops.y + triceratops.h * 0.56, 66, 50, 1),
         color: '#E9EFE6'
       },
       {
-        d: organicBlobPath(aarrearkku.x + aarrearkku.w * 0.5, aarrearkku.y + aarrearkku.h * 0.58, 56, 42, 2),
+        d: organicBlobPath(aarrearkku.x + aarrearkku.w * 0.5, aarrearkku.y + aarrearkku.h * 0.58, 54, 40, 2),
         color: '#ECE7DD'
       },
       {
-        d: organicBlobPath(linna.x + linna.w * 0.5, linna.y + linna.h * 0.58, 84, 66, 3),
+        d: organicBlobPath(linna.x + linna.w * 0.5, linna.y + linna.h * 0.58, 80, 64, 3),
         color: '#ECE7DF'
       }
     ];
 
     // Sparse, calm Style B scenic map accents placed only where guaranteed clear of tiles & landmarks
-    const candidateAccents = [
-      { id: 'accent-waves', x: banaanilaiva.x - 42, y: banaanilaiva.y + banaanilaiva.h - 32, w: 46, h: 20, opacity: 0.68, allowNearBoat: true }
-    ];
+    const candidateAccents = [];
 
     if (mode === '3row') {
       candidateAccents.push(
-        { id: 'accent-grass', x: aarrearkku.x + 10, y: aarrearkku.y + aarrearkku.h + 26, w: 34, h: 30, opacity: 0.74 },
-        { id: 'accent-pebbles', x: triceratops.x + 18, y: triceratops.y + triceratops.h + 22, w: 32, h: 24, opacity: 0.7 },
-        { id: 'accent-bush', x: (maxC - 1) * P + 20, y: 0.1 * P, w: 38, h: 30, opacity: 0.7 }
+        { id: 'accent-grass', x: aarrearkku.x + 10, y: aarrearkku.y + aarrearkku.h + 24, w: 32, h: 28, opacity: 0.72 },
+        { id: 'accent-pebbles', x: triceratops.x + 18, y: triceratops.y + triceratops.h + 20, w: 30, h: 22, opacity: 0.68 },
+        { id: 'accent-bush', x: (maxC - 1) * P + 20, y: 0.1 * P, w: 36, h: 28, opacity: 0.68 }
       );
     } else if (mode === '4stair') {
       candidateAccents.push(
-        { id: 'accent-bush', x: aarrearkku.x - 56, y: aarrearkku.y + 44, w: 38, h: 30, opacity: 0.72 },
-        { id: 'accent-pebbles', x: aarrearkku.x + aarrearkku.w + 34, y: aarrearkku.y - 16, w: 32, h: 24, opacity: 0.7 },
-        { id: 'accent-grass', x: triceratops.x + triceratops.w + 26, y: triceratops.y + 34, w: 34, h: 30, opacity: 0.74 },
-        { id: 'accent-flower', x: triceratops.x - 16, y: triceratops.y + triceratops.h + 22, w: 32, h: 28, opacity: 0.72 }
+        { id: 'accent-bush', x: aarrearkku.x - 52, y: aarrearkku.y + 42, w: 36, h: 28, opacity: 0.7 },
+        { id: 'accent-pebbles', x: aarrearkku.x + aarrearkku.w + 32, y: aarrearkku.y - 16, w: 30, h: 22, opacity: 0.68 },
+        { id: 'accent-grass', x: triceratops.x + triceratops.w + 24, y: triceratops.y + 32, w: 32, h: 28, opacity: 0.72 },
+        { id: 'accent-flower', x: triceratops.x - 14, y: triceratops.y + triceratops.h + 20, w: 30, h: 26, opacity: 0.7 }
       );
     } else {
       candidateAccents.push(
-        { id: 'accent-grass', x: triceratops.x + triceratops.w + 24, y: triceratops.y + 18, w: 34, h: 30, opacity: 0.74 },
-        { id: 'accent-pebbles', x: aarrearkku.x + aarrearkku.w + 22, y: aarrearkku.y + 24, w: 32, h: 24, opacity: 0.7 },
-        { id: 'accent-bush', x: (maxC - 1) * P + 16, y: 0.08 * P, w: 38, h: 30, opacity: 0.7 }
+        { id: 'accent-grass', x: triceratops.x + triceratops.w + 22, y: triceratops.y + 18, w: 32, h: 28, opacity: 0.72 },
+        { id: 'accent-pebbles', x: aarrearkku.x + aarrearkku.w + 20, y: aarrearkku.y + 22, w: 30, h: 22, opacity: 0.68 },
+        { id: 'accent-bush', x: (maxC - 1) * P + 16, y: 0.08 * P, w: 36, h: 28, opacity: 0.68 }
       );
     }
 
@@ -233,20 +231,20 @@ window.TavupeliBoard = (() => {
     const accents = candidateAccents.filter(acc => {
       const box = { x: acc.x, y: acc.y, w: acc.w, h: acc.h };
       if (blockers.some(b => boxesOverlap(box, b, 10))) return false;
-      if (!acc.allowNearBoat && landmarkBoxes.some(lb => boxesOverlap(box, lb, 10))) return false;
+      if (landmarkBoxes.some(lb => boxesOverlap(box, lb, 10))) return false;
       return true;
     });
 
-    let minX = bearLurk.x - 28;
-    let minY = banaanilaiva.y - 10;
+    let minX = bearLurk.x - 24;
+    let minY = banaanilaiva.y - 4;
     let maxX = linna.x + linna.w;
     let maxY = fin.y + fin.h;
 
     tiles.forEach(t => {
       minX = Math.min(minX, t.x);
-      minY = Math.min(minY, t.y - 18); // Room for subtle top portal arcs
+      minY = Math.min(minY, t.y - 16);
       maxX = Math.max(maxX, t.x + t.w);
-      maxY = Math.max(maxY, t.y + t.h + 14);
+      maxY = Math.max(maxY, t.y + t.h + 12);
     });
 
     Object.values(vignettes).forEach(v => {
@@ -263,7 +261,7 @@ window.TavupeliBoard = (() => {
       maxY = Math.max(maxY, a.y + a.h);
     });
 
-    const pad = 22;
+    const pad = 10;
     const viewBox = [
       Math.floor(minX - pad),
       Math.floor(minY - pad),

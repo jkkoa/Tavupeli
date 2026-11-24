@@ -35,11 +35,11 @@ window.TAVUPELI_WORDS = [
 ];
 
 window.TAVUPELI_STATIONS = [
-  { id: 'banaanivuori', name: 'Banaanivuori', letters: 1 },
-  { id: 'laava',        name: 'Laava',        letters: 3 },
-  { id: 'katapultti',   name: 'Katapultti',   letters: 1 },
-  { id: 'merirosvo',    name: 'Merirosvo',    letters: 1 },
-  { id: 'taikapata',    name: 'Taikapata',    letters: 1 }
+  { id: 'taikavuori', name: 'Taikavuori', letters: 1, desc: 'Kiipeä vuorelle tekemään taika.' },
+  { id: 'laava',      name: 'Laava',      letters: 3, desc: 'Hypi kiviä pitkin laavavirran yli.' },
+  { id: 'katapultti', name: 'Katapultti', letters: 1, desc: 'Laukaise banaani dinosauruksen suuhun.' },
+  { id: 'merirosvo',  name: 'Merirosvo',  letters: 1, desc: 'Auta merirosvoa etsimään aarre.' },
+  { id: 'taikapata',  name: 'Taikapata',  letters: 1, desc: 'Lisää ainesosa noidan kattilaan.' }
 ];
 
 window.TAVUPELI_TWISTS = [
