@@ -1,5 +1,5 @@
 /* Tavupeli — Offline PWA Service Worker */
-const CACHE_NAME = 'tavupeli-cache-v4';
+const CACHE_NAME = 'tavupeli-cache-v5';
 const CORE_ASSETS = [
   './',
   './index.html',
@@ -12,7 +12,9 @@ const CORE_ASSETS = [
   './gallery.html',
   './manifest.json',
   './icons/icon-192.svg',
-  './icons/icon-512.svg'
+  './icons/icon-512.svg',
+  './fonts/andika-regular.woff2',
+  './fonts/andika-bold.woff2'
 ];
 
 self.addEventListener('install', event => {

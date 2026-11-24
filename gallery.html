@@ -26,15 +26,17 @@
     <h1>Tavupeli — Kuvakatselmus</h1>
     <a href="./index.html">← Takaisin peliin</a>
   </header>
-  <h2>Sanakortit (20)</h2>
+  <h2 id="words-heading">Sanakortit</h2>
   <div id="words-grid" class="grid"></div>
-  <h2>Pelilauta, asemat & kortit (14)</h2>
+  <h2 id="board-heading">Pelilauta, asemat &amp; kortit</h2>
   <div id="board-grid" class="grid"></div>
   <script src="./words.js"></script>
   <script src="./art.js"></script>
   <script>
     (async () => {
       await window.TavupeliArt.preloadAll();
+      document.getElementById('words-heading').textContent = `Sanakortit (${window.TAVUPELI_WORDS.length})`;
+      document.getElementById('board-heading').textContent = `Pelilauta, asemat & kortit (${window.TavupeliArt.BOARD_IDS.length})`;
       const wg = document.getElementById('words-grid');
       window.TAVUPELI_WORDS.forEach(w => {
         const ext = window.TavupeliArt.getResolvedUrl('words', w.id);
@@ -53,7 +55,7 @@
         const card = document.createElement('div');
         card.className = 'tile';
         const art = document.createElement('div');
-        art.className = `art${id === 'karhu-0' ? ' stone' : ''}`;
+        art.className = `art${id === 'karhu-0' || id === 'karhu-tassu' ? ' stone' : ''}`;
         window.TavupeliArt.renderHtml(art, 'board', id, id);
         card.appendChild(art);
         card.insertAdjacentHTML('beforeend', `<div class="word">${id}</div><div class="meta">img/board/${id}.webp</div><span class="badge${ext ? ' custom' : ''}">${ext ? 'Oma kuva' : 'SVG-varakuva'}</span>`);

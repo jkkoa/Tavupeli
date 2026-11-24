@@ -1,11 +1,45 @@
-/* Tavupeli v3 — Rock-Solid Dynamic Orthogonal Board Engine (20–45 squares) */
+/* Tavupeli v4 — Dynamic Orthogonal Storybook Board Engine (20–45 squares) */
 window.TavupeliBoard = (() => {
   const S = 72;
   const G = 5;
   const P = S + G;
 
-  function randRange(min, max) {
-    return min + Math.random() * (max - min);
+  function organicBlobPath(cx, cy, rx, ry, variant = 0) {
+    // Deterministic gentle organic ground patch using 8 smooth quadratic/cubic segments
+    const offsets = [
+      [1.04, 0.94, 1.06, 0.96, 1.02, 0.93, 1.05, 0.98],
+      [0.95, 1.05, 0.96, 1.04, 0.94, 1.06, 0.98, 1.02],
+      [1.06, 0.97, 0.94, 1.05, 1.03, 0.95, 0.96, 1.04],
+      [0.98, 1.04, 1.02, 0.93, 1.06, 0.97, 0.95, 1.03]
+    ][variant % 4];
+
+    const n = offsets.length;
+    const pts = [];
+    for (let i = 0; i < n; i++) {
+      const a = (i / n) * Math.PI * 2;
+      const k = offsets[i];
+      pts.push([cx + Math.cos(a) * rx * k, cy + Math.sin(a) * ry * k]);
+    }
+
+    const mid = (p1, p2) => [(p1[0] + p2[0]) / 2, (p1[1] + p2[1]) / 2];
+    const start = mid(pts[n - 1], pts[0]);
+    let d = `M ${start[0].toFixed(1)} ${start[1].toFixed(1)}`;
+    for (let i = 0; i < n; i++) {
+      const p = pts[i];
+      const next = pts[(i + 1) % n];
+      const m = mid(p, next);
+      d += ` Q ${p[0].toFixed(1)} ${p[1].toFixed(1)} ${m[0].toFixed(1)} ${m[1].toFixed(1)}`;
+    }
+    return d + ' Z';
+  }
+
+  function boxesOverlap(a, b, pad = 12) {
+    return !(
+      a.x + a.w + pad <= b.x ||
+      b.x + b.w + pad <= a.x ||
+      a.y + a.h + pad <= b.y ||
+      b.y + b.h + pad <= a.y
+    );
   }
 
   function generateTiles(squareCount) {
@@ -90,17 +124,6 @@ window.TavupeliBoard = (() => {
       const hasBelow = coordSet.has(key(col, row + 1));
       const isMiddleVert = hasAbove && hasBelow;
 
-      let iconSide = null;
-      if (!isStart && !isFinish && !isMiddleVert) {
-        if (!hasAbove) {
-          iconSide = 'top';
-        } else if (!coordSet.has(key(col + 1, row))) {
-          iconSide = 'right';
-        } else if (!coordSet.has(key(col - 1, row))) {
-          iconSide = 'left';
-        }
-      }
-
       let x = col * P;
       const y = row * P;
       let w = S;
@@ -124,7 +147,6 @@ window.TavupeliBoard = (() => {
         isStart,
         isFinish,
         isMiddleVert,
-        iconSide,
         feature: null
       };
     });
@@ -133,44 +155,98 @@ window.TavupeliBoard = (() => {
     const st = tiles[0];
     const fin = tiles[tiles.length - 1];
 
-    const bearLurk = { x: st.x - 38, y: st.y + S * 0.54 };
-    const banaanilaiva = { x: st.x - 118, y: st.y - 64, w: 108, h: 66 };
-    const linna = { x: fin.x + fin.w + 16, y: fin.y + S - 130, w: 132, h: 134 };
+    // Bear lurks 1 step behind Square 1
+    const bearLurk = { x: st.x - 42, y: st.y + S * 0.54 };
 
-    let lohikaarme;
+    // Hero landmarks: larger shipwrecked Banaanilaiva + Castle; compact Triceratops + smaller half-buried Aarrearkku
+    const banaanilaiva = { x: st.x - 160, y: st.y - 98, w: 146, h: 118 };
+    const linna = { x: fin.x + fin.w + 18, y: fin.y + S - 134, w: 136, h: 140 };
+
+    let triceratops;
     let aarrearkku;
     if (mode === '3row') {
-      lohikaarme = { x: (maxC + 1) * P + 34, y: 1.05 * P, w: 122, h: 112 };
-      aarrearkku = { x: -0.30 * P, y: 2.55 * P, w: 84, h: 72 };
+      triceratops = { x: (maxC + 1) * P + 26, y: 1.12 * P, w: 98, h: 90 };
+      aarrearkku = { x: -0.32 * P, y: 2.65 * P, w: 78, h: 68 };
     } else if (mode === '4stair') {
-      const ax = Math.max(0.15 * P, (midC * 0.5 - 0.65) * P);
-      aarrearkku = { x: ax, y: 2.85 * P, w: 84, h: 72 };
-      lohikaarme = { x: (midC + 1.48) * P, y: 4.35 * P, w: 122, h: 112 };
+      const ax = Math.max(0.22 * P, (midC * 0.48 - 0.55) * P);
+      aarrearkku = { x: ax, y: 2.95 * P, w: 78, h: 68 };
+      triceratops = { x: (midC + 1.55) * P, y: 4.55 * P, w: 98, h: 90 };
     } else {
-      const dx = (midC + 1.48) * P;
-      lohikaarme = { x: dx, y: 4.35 * P, w: 122, h: 112 };
-      aarrearkku = { x: dx + 16, y: 6.25 * P, w: 84, h: 72 };
+      const dx = (midC + 1.55) * P;
+      triceratops = { x: dx, y: 4.55 * P, w: 98, h: 90 };
+      aarrearkku = { x: dx + 14, y: 6.48 * P, w: 78, h: 68 };
     }
 
-    const vignettes = { banaanilaiva, aarrearkku, lohikaarme, linna };
+    const vignettes = { banaanilaiva, aarrearkku, triceratops, linna };
 
     const washes = [
-      { cx: banaanilaiva.x + 56, cy: banaanilaiva.y + 42, rx: 74, ry: 44, rot: -6, color: '#EFEBE0' },
-      { cx: lohikaarme.x + lohikaarme.w / 2, cy: lohikaarme.y + lohikaarme.h / 2, rx: 86, ry: 62, rot: 7, color: '#E9EFE6' },
-      { cx: aarrearkku.x + aarrearkku.w / 2, cy: aarrearkku.y + aarrearkku.h / 2, rx: 64, ry: 48, rot: -8, color: '#ECE7DD' },
-      { cx: linna.x + linna.w / 2, cy: linna.y + linna.h / 2 + 6, rx: 84, ry: 68, rot: -4, color: '#ECE7DF' }
+      {
+        d: organicBlobPath(banaanilaiva.x + banaanilaiva.w * 0.5, banaanilaiva.y + banaanilaiva.h * 0.62, 86, 54, 0),
+        color: '#EFEBE0'
+      },
+      {
+        d: organicBlobPath(triceratops.x + triceratops.w * 0.5, triceratops.y + triceratops.h * 0.56, 68, 52, 1),
+        color: '#E9EFE6'
+      },
+      {
+        d: organicBlobPath(aarrearkku.x + aarrearkku.w * 0.5, aarrearkku.y + aarrearkku.h * 0.58, 56, 42, 2),
+        color: '#ECE7DD'
+      },
+      {
+        d: organicBlobPath(linna.x + linna.w * 0.5, linna.y + linna.h * 0.58, 84, 66, 3),
+        color: '#ECE7DF'
+      }
     ];
 
+    // Sparse, calm Style B scenic map accents placed only where guaranteed clear of tiles & landmarks
+    const candidateAccents = [
+      { id: 'accent-waves', x: banaanilaiva.x - 42, y: banaanilaiva.y + banaanilaiva.h - 32, w: 46, h: 20, opacity: 0.68, allowNearBoat: true }
+    ];
+
+    if (mode === '3row') {
+      candidateAccents.push(
+        { id: 'accent-grass', x: aarrearkku.x + 10, y: aarrearkku.y + aarrearkku.h + 26, w: 34, h: 30, opacity: 0.74 },
+        { id: 'accent-pebbles', x: triceratops.x + 18, y: triceratops.y + triceratops.h + 22, w: 32, h: 24, opacity: 0.7 },
+        { id: 'accent-bush', x: (maxC - 1) * P + 20, y: 0.1 * P, w: 38, h: 30, opacity: 0.7 }
+      );
+    } else if (mode === '4stair') {
+      candidateAccents.push(
+        { id: 'accent-bush', x: aarrearkku.x - 56, y: aarrearkku.y + 44, w: 38, h: 30, opacity: 0.72 },
+        { id: 'accent-pebbles', x: aarrearkku.x + aarrearkku.w + 34, y: aarrearkku.y - 16, w: 32, h: 24, opacity: 0.7 },
+        { id: 'accent-grass', x: triceratops.x + triceratops.w + 26, y: triceratops.y + 34, w: 34, h: 30, opacity: 0.74 },
+        { id: 'accent-flower', x: triceratops.x - 16, y: triceratops.y + triceratops.h + 22, w: 32, h: 28, opacity: 0.72 }
+      );
+    } else {
+      candidateAccents.push(
+        { id: 'accent-grass', x: triceratops.x + triceratops.w + 24, y: triceratops.y + 18, w: 34, h: 30, opacity: 0.74 },
+        { id: 'accent-pebbles', x: aarrearkku.x + aarrearkku.w + 22, y: aarrearkku.y + 24, w: 32, h: 24, opacity: 0.7 },
+        { id: 'accent-bush', x: (maxC - 1) * P + 16, y: 0.08 * P, w: 38, h: 30, opacity: 0.7 }
+      );
+    }
+
+    const blockers = [
+      ...tiles.map(t => ({ x: t.x, y: t.y, w: t.w, h: t.h })),
+      { x: bearLurk.x - 24, y: bearLurk.y - 24, w: 48, h: 48 }
+    ];
+    const landmarkBoxes = Object.values(vignettes);
+
+    const accents = candidateAccents.filter(acc => {
+      const box = { x: acc.x, y: acc.y, w: acc.w, h: acc.h };
+      if (blockers.some(b => boxesOverlap(box, b, 10))) return false;
+      if (!acc.allowNearBoat && landmarkBoxes.some(lb => boxesOverlap(box, lb, 10))) return false;
+      return true;
+    });
+
     let minX = bearLurk.x - 28;
-    let minY = banaanilaiva.y - 8;
+    let minY = banaanilaiva.y - 10;
     let maxX = linna.x + linna.w;
     let maxY = fin.y + fin.h;
 
     tiles.forEach(t => {
-      minX = Math.min(minX, t.x - (t.iconSide === 'left' ? 28 : 0));
-      minY = Math.min(minY, t.y - (t.iconSide === 'top' ? 28 : 0));
-      maxX = Math.max(maxX, t.x + t.w + (t.iconSide === 'right' ? 28 : 0));
-      maxY = Math.max(maxY, t.y + t.h);
+      minX = Math.min(minX, t.x);
+      minY = Math.min(minY, t.y - 18); // Room for subtle top portal arcs
+      maxX = Math.max(maxX, t.x + t.w);
+      maxY = Math.max(maxY, t.y + t.h + 14);
     });
 
     Object.values(vignettes).forEach(v => {
@@ -180,7 +256,14 @@ window.TavupeliBoard = (() => {
       maxY = Math.max(maxY, v.y + v.h);
     });
 
-    const pad = 18;
+    accents.forEach(a => {
+      minX = Math.min(minX, a.x);
+      minY = Math.min(minY, a.y);
+      maxX = Math.max(maxX, a.x + a.w);
+      maxY = Math.max(maxY, a.y + a.h);
+    });
+
+    const pad = 22;
     const viewBox = [
       Math.floor(minX - pad),
       Math.floor(minY - pad),
@@ -188,26 +271,30 @@ window.TavupeliBoard = (() => {
       Math.ceil(maxY - minY + pad * 2)
     ];
 
-    return { mode, tiles, viewBox, washes, bearLurk, vignettes };
+    return { mode, tiles, viewBox, washes, bearLurk, vignettes, accents };
   }
 
   function assignFeatures(tiles, activeStationIds, twistsEnabled) {
+    // Icons sit cleanly inside tiles, so any non-start, non-finish square is eligible
     const eligible = tiles
-      .filter(t => !t.isStart && !t.isFinish && !t.isMiddleVert && t.iconSide !== null)
+      .filter(t => !t.isStart && !t.isFinish)
       .map(t => t.index);
 
     const featureMap = {};
     const used = new Set();
 
-    const makeMeta = () => ({
-      tilt: Math.round(randRange(-9, 9) * 10) / 10,
-      shift: Math.round(randRange(-3.5, 3.5) * 10) / 10
-    });
-
     if (twistsEnabled && eligible.length >= 6) {
       const pairs = tiles.length >= 39 ? 3 : (tiles.length >= 28 ? 2 : 1);
-      const candidatesPlus = eligible.filter(idx => idx >= 3 && idx <= tiles.length - 5);
-      const candidatesMinus = eligible.filter(idx => idx >= 5 && idx <= tiles.length - 3);
+      // Prefer straight horizontal runs for Taikaportti so the +2 dotted arc looks super clean
+      const isStraightPlus2 = idx => {
+        const a = tiles[idx];
+        const b = tiles[idx + 2];
+        return a && b && a.row === b.row && Math.abs(b.col - a.col) === 2;
+      };
+
+      const candidatesPlusStraight = eligible.filter(idx => idx >= 2 && idx <= tiles.length - 4 && isStraightPlus2(idx));
+      const candidatesPlusFallback = eligible.filter(idx => idx >= 2 && idx <= tiles.length - 4);
+      const candidatesMinus = eligible.filter(idx => idx >= 4 && idx <= tiles.length - 3);
 
       const pickAtFraction = (arr, frac) => {
         if (!arr.length) return null;
@@ -234,17 +321,17 @@ window.TavupeliBoard = (() => {
       const fracsMinus = pairs === 3 ? [0.32, 0.64, 0.88] : (pairs === 2 ? [0.44, 0.82] : [0.72]);
 
       for (const f of fracsPlus) {
-        const idx = pickAtFraction(candidatesPlus, f);
+        const idx = pickAtFraction(candidatesPlusStraight, f) ?? pickAtFraction(candidatesPlusFallback, f);
         if (idx !== null) {
           used.add(idx);
-          featureMap[idx] = { type: 'twist', id: 'taikaportti', ...makeMeta() };
+          featureMap[idx] = { type: 'twist', id: 'taikaportti' };
         }
       }
       for (const f of fracsMinus) {
         const idx = pickAtFraction(candidatesMinus, f);
         if (idx !== null) {
           used.add(idx);
-          featureMap[idx] = { type: 'twist', id: 'banaaninkuori', ...makeMeta() };
+          featureMap[idx] = { type: 'twist', id: 'banaaninkuori' };
         }
       }
     }
@@ -253,7 +340,7 @@ window.TavupeliBoard = (() => {
       const openSlots = eligible.filter(idx => !used.has(idx));
       const targetCount = Math.min(
         openSlots.length,
-        Math.max(activeStationIds.length, Math.round(openSlots.length * 0.82))
+        Math.max(activeStationIds.length, Math.round(openSlots.length * 0.78))
       );
 
       const chosenSlots = [];
@@ -272,7 +359,7 @@ window.TavupeliBoard = (() => {
 
       chosenSlots.forEach((tileIdx, i) => {
         const stationId = order[i % order.length];
-        featureMap[tileIdx] = { type: 'station', id: stationId, ...makeMeta() };
+        featureMap[tileIdx] = { type: 'station', id: stationId };
       });
     }
 
@@ -288,7 +375,7 @@ window.TavupeliBoard = (() => {
     if (!tile) return result;
 
     const cx = tile.x + tile.w / 2;
-    const cy = tile.y + tile.h / 2 + 4;
+    const cy = tile.y + tile.h / 2 + 2;
 
     if (tile.isStart || tile.isFinish) {
       if (bearOnTile) {
