@@ -155,24 +155,24 @@ window.TavupeliBoard = (() => {
     const st = tiles[0];
     const fin = tiles[tiles.length - 1];
 
-    // Bear lurks 1 step behind Square 1
-    const bearLurk = { x: st.x - 40, y: st.y + S * 0.54 };
+    // Nestle Banaanilaiva over Start's left edge and Linna over Finish's right edge
+    const banaanilaiva = { x: st.x - 92, y: st.y - 26, w: 124, h: 100 };
+    const linna = { x: fin.x + fin.w - 32, y: fin.y + S - 126, w: 132, h: 136 };
 
-    // Hero landmarks tucked closer so the whole board zooms larger on 65" displays
-    const banaanilaiva = { x: st.x - 142, y: st.y - 84, w: 138, h: 112 };
-    const linna = { x: fin.x + fin.w + 12, y: fin.y + S - 130, w: 132, h: 136 };
+    // Bear lurks cleanly just below the shipwreck, peeking up at Square 1
+    const bearLurk = { x: st.x - 18, y: st.y + S + 14 };
 
     let triceratops;
     let aarrearkku;
     if (mode === '3row') {
-      triceratops = { x: (maxC + 1) * P + 22, y: 1.12 * P, w: 96, h: 88 };
-      aarrearkku = { x: -0.26 * P, y: 2.65 * P, w: 76, h: 66 };
+      triceratops = { x: (maxC + 1) * P + 18, y: 1.12 * P, w: 96, h: 88 };
+      aarrearkku = { x: -0.18 * P, y: 2.65 * P, w: 76, h: 66 };
     } else if (mode === '4stair') {
-      const ax = Math.max(0.2 * P, (midC * 0.48 - 0.55) * P);
+      const ax = Math.max(0.24 * P, (midC * 0.48 - 0.55) * P);
       aarrearkku = { x: ax, y: 2.95 * P, w: 76, h: 66 };
-      triceratops = { x: (midC + 1.52) * P, y: 4.55 * P, w: 96, h: 88 };
+      triceratops = { x: (midC + 1.48) * P, y: 4.55 * P, w: 96, h: 88 };
     } else {
-      const dx = (midC + 1.52) * P;
+      const dx = (midC + 1.48) * P;
       triceratops = { x: dx, y: 4.55 * P, w: 96, h: 88 };
       aarrearkku = { x: dx + 14, y: 6.48 * P, w: 76, h: 66 };
     }
@@ -181,7 +181,7 @@ window.TavupeliBoard = (() => {
 
     const washes = [
       {
-        d: organicBlobPath(banaanilaiva.x + banaanilaiva.w * 0.5, banaanilaiva.y + banaanilaiva.h * 0.62, 80, 50, 0),
+        d: organicBlobPath(banaanilaiva.x + banaanilaiva.w * 0.52, banaanilaiva.y + banaanilaiva.h * 0.62, 74, 48, 0),
         color: '#EFEBE0'
       },
       {
@@ -193,7 +193,7 @@ window.TavupeliBoard = (() => {
         color: '#ECE7DD'
       },
       {
-        d: organicBlobPath(linna.x + linna.w * 0.5, linna.y + linna.h * 0.58, 80, 64, 3),
+        d: organicBlobPath(linna.x + linna.w * 0.52, linna.y + linna.h * 0.58, 78, 62, 3),
         color: '#ECE7DF'
       }
     ];
@@ -235,16 +235,16 @@ window.TavupeliBoard = (() => {
       return true;
     });
 
-    let minX = bearLurk.x - 24;
-    let minY = banaanilaiva.y - 4;
+    let minX = Math.min(banaanilaiva.x, bearLurk.x - 24);
+    let minY = banaanilaiva.y;
     let maxX = linna.x + linna.w;
     let maxY = fin.y + fin.h;
 
     tiles.forEach(t => {
       minX = Math.min(minX, t.x);
-      minY = Math.min(minY, t.y - 16);
+      minY = Math.min(minY, t.y - 18);
       maxX = Math.max(maxX, t.x + t.w);
-      maxY = Math.max(maxY, t.y + t.h + 12);
+      maxY = Math.max(maxY, t.y + t.h + 14);
     });
 
     Object.values(vignettes).forEach(v => {
@@ -261,7 +261,7 @@ window.TavupeliBoard = (() => {
       maxY = Math.max(maxY, a.y + a.h);
     });
 
-    const pad = 10;
+    const pad = 16;
     const viewBox = [
       Math.floor(minX - pad),
       Math.floor(minY - pad),
@@ -376,16 +376,35 @@ window.TavupeliBoard = (() => {
     const cy = tile.y + tile.h / 2 + 2;
 
     if (tile.isStart || tile.isFinish) {
-      if (bearOnTile) {
-        result.bear = { x: tile.x + 22, y: tile.y + tile.h / 2 + 2 };
-      }
-      const leftPad = bearOnTile ? 46 : 16;
-      const availW = tile.w - leftPad - 14;
       const n = playerIndicesOnTile.length;
+      let leftPad;
+      let rightPad;
+
+      if (tile.isStart) {
+        // Keep left overlap clear for nestled Banaanilaiva
+        if (bearOnTile) {
+          result.bear = { x: tile.x + 34, y: tile.y + tile.h / 2 + 2 };
+          leftPad = 56;
+        } else {
+          leftPad = 38;
+        }
+        rightPad = 12;
+      } else {
+        // Keep right overlap clear for nestled Linna gate
+        if (bearOnTile) {
+          result.bear = { x: tile.x + 20, y: tile.y + tile.h / 2 + 2 };
+          leftPad = 42;
+        } else {
+          leftPad = 14;
+        }
+        rightPad = 38;
+      }
+
+      const availW = Math.max(20, tile.w - leftPad - rightPad);
 
       const placeRow = (slice, yPos) => {
         const cnt = slice.length;
-        const stepX = cnt > 1 ? Math.min(22, availW / (cnt - 1)) : 0;
+        const stepX = cnt > 1 ? Math.min(20, availW / (cnt - 1)) : 0;
         const rowW = stepX * (cnt - 1);
         const rx = tile.x + leftPad + (availW - rowW) / 2;
         slice.forEach((pIdx, k) => {
@@ -393,7 +412,7 @@ window.TavupeliBoard = (() => {
         });
       };
 
-      if (n <= 4) {
+      if (n <= 3) {
         placeRow(playerIndicesOnTile, tile.y + tile.h / 2 + 2);
       } else {
         const topCnt = Math.ceil(n / 2);

@@ -35,7 +35,7 @@ window.TAVUPELI_WORDS = [
 ];
 
 window.TAVUPELI_STATIONS = [
-  { id: 'taikavuori', name: 'Taikavuori', letters: 1, desc: 'Kiipeä vuorelle tekemään taika.' },
+  { id: 'taikavuori', name: 'Taikavuori', letters: 1, desc: 'Kiipeä vuorelle ja tee kirjaintaika.' },
   { id: 'laava',      name: 'Laava',      letters: 3, desc: 'Hypi kiviä pitkin laavavirran yli.' },
   { id: 'katapultti', name: 'Katapultti', letters: 1, desc: 'Laukaise banaani dinosauruksen suuhun.' },
   { id: 'merirosvo',  name: 'Merirosvo',  letters: 1, desc: 'Auta merirosvoa etsimään aarre.' },

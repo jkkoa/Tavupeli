@@ -626,13 +626,11 @@
     });
     html += '</g>';
 
-    // 3. Storybook Landmarks
+    // 3. Background pocket landmarks (Aarrearkku & Triceratops)
     html += '<g class="layer-vignettes">';
     const v = vignettes;
-    html += window.TavupeliArt.buildBoardSvgNode('banaanilaiva', v.banaanilaiva.x, v.banaanilaiva.y, v.banaanilaiva.w, v.banaanilaiva.h);
     html += window.TavupeliArt.buildBoardSvgNode('aarrearkku', v.aarrearkku.x, v.aarrearkku.y, v.aarrearkku.w, v.aarrearkku.h);
     html += window.TavupeliArt.buildBoardSvgNode('triceratops', v.triceratops.x, v.triceratops.y, v.triceratops.w, v.triceratops.h);
-    html += `<g id="castle-anchor">${renderCastleMarkup()}</g>`;
     html += '</g>';
 
     // 4. Consistent quiet directional chevrons in every tile gap
@@ -676,7 +674,13 @@
     });
     html += '</g>';
 
-    // 6. Dotted curved portal arcs (Taikaportti → +2 square)
+    // 6. Start & Finish Hero Landmarks nestled cleanly over tile edges (tokens-svg always stays above!)
+    html += '<g class="layer-landmarks-front">';
+    html += window.TavupeliArt.buildBoardSvgNode('banaanilaiva', v.banaanilaiva.x, v.banaanilaiva.y, v.banaanilaiva.w, v.banaanilaiva.h);
+    html += `<g id="castle-anchor">${renderCastleMarkup()}</g>`;
+    html += '</g>';
+
+    // 7. Dotted curved portal arcs (Taikaportti → +2 square)
     html += `<g class="layer-portals">${buildPortalArcsSvg(tiles)}</g>`;
     el.boardSvg.innerHTML = html;
 
